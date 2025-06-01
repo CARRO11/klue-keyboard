@@ -1,0 +1,11 @@
+name,type,rgb_support,qmk_via,flex,price_tier,build_quality,features
+DZ60RGB V2,hotswap,True,True,0.4,0.5,0.7,"rgb_per_key,usb_c,esd_protection"
+BM60RGB,hotswap,True,True,0.5,0.4,0.6,"rgb_per_key,usb_c"
+KBD67 Rev2,solder,False,True,0.6,0.5,0.8,"usb_c,esd_protection"
+Instant60,hotswap,True,True,0.4,0.6,0.8,"rgb_underglow,usb_c,esd_protection"
+WT60-D,solder,False,True,0.7,0.7,0.9,"usb_c,esd_protection,flex_cuts"
+H60,solder,False,True,0.8,0.6,0.8,"usb_c,flex_cuts"
+NK65 PCB,hotswap,True,True,0.3,0.5,0.7,"rgb_underglow,usb_c"
+Solder TKL PCB,solder,False,True,0.5,0.4,0.7,usb_c
+HS60,hotswap,True,True,0.4,0.6,0.8,"rgb_per_key,usb_c,esd_protection"
+KBD75 Rev2,solder,True,True,0.5,0.5,0.7,"rgb_underglow,usb_c"

@@ -1,0 +1,11 @@
+name,type,mounting,weight,acoustics,build_quality,price_tier,rgb_support,angle,size
+Tofu60,aluminum,tray_mount,0.8,0.7,0.8,0.6,True,6,60%
+KBD67 Lite,plastic,gasket_mount,0.4,0.8,0.7,0.4,True,6,65%
+Mode80,aluminum,top_mount,0.9,0.9,0.95,0.9,True,7,TKL
+GMMK Pro,aluminum,gasket_mount,0.75,0.75,0.8,0.7,True,6,75%
+Keychron Q1,aluminum,gasket_mount,0.7,0.8,0.75,0.6,True,6,75%
+Bakeneko60,aluminum,o_ring_mount,0.6,0.85,0.7,0.5,False,6,60%
+NK65,aluminum,gasket_mount,0.65,0.75,0.75,0.6,True,6,65%
+Tofu84,aluminum,tray_mount,0.8,0.7,0.8,0.65,True,6,75%
+Frog TKL,aluminum,top_mount,0.85,0.9,0.9,0.85,False,7,TKL
+D65,aluminum,gasket_mount,0.75,0.8,0.85,0.7,True,6,65%

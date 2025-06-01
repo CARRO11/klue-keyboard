@@ -1,0 +1,77 @@
+-- KeyboardCase 테이블 생성 (기존 Case 테이블이 있다면 삭제)
+DROP TABLE IF EXISTS `KeyboardCase`;
+CREATE TABLE `KeyboardCase` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL,
+    `type` VARCHAR(100),
+    `mounting` VARCHAR(100),
+    `weight` FLOAT,
+    `acoustics` FLOAT,
+    `build_quality` FLOAT,
+    `price_tier` FLOAT,
+    `rgb_support` BOOLEAN,
+    `angle` INT,
+    `size` VARCHAR(50)
+);
+
+-- PCB 테이블 수정
+ALTER TABLE `PCB`
+ADD COLUMN `rgb_support` BOOLEAN DEFAULT NULL,
+ADD COLUMN `qmk_via` BOOLEAN DEFAULT NULL,
+ADD COLUMN `flex` FLOAT DEFAULT NULL,
+ADD COLUMN `price_tier` FLOAT DEFAULT NULL,
+ADD COLUMN `build_quality` FLOAT DEFAULT NULL,
+ADD COLUMN `features` TEXT DEFAULT NULL;
+
+-- Plate 테이블 수정
+ALTER TABLE `Plate`
+ADD COLUMN `stiffness` FLOAT DEFAULT NULL,
+ADD COLUMN `sound_profile` FLOAT DEFAULT NULL,
+ADD COLUMN `price_tier` FLOAT DEFAULT NULL,
+ADD COLUMN `weight` FLOAT DEFAULT NULL,
+ADD COLUMN `flex` FLOAT DEFAULT NULL;
+
+-- Stabilizer 테이블 수정
+ALTER TABLE `Stabilizer`
+ADD COLUMN `type` VARCHAR(100) DEFAULT NULL,
+ADD COLUMN `rattle` FLOAT DEFAULT NULL,
+ADD COLUMN `smoothness` FLOAT DEFAULT NULL,
+ADD COLUMN `sound_profile` FLOAT DEFAULT NULL,
+ADD COLUMN `price_tier` FLOAT DEFAULT NULL,
+ADD COLUMN `build_quality` FLOAT DEFAULT NULL;
+
+-- Keycap 테이블 수정
+ALTER TABLE `Keycap`
+ADD COLUMN `sound_profile` FLOAT DEFAULT NULL,
+ADD COLUMN `build_quality` FLOAT DEFAULT NULL,
+ADD COLUMN `price_tier` FLOAT DEFAULT NULL,
+ADD COLUMN `rgb_compatible` BOOLEAN DEFAULT NULL,
+ADD COLUMN `durability` FLOAT DEFAULT NULL;
+
+-- Foam 테이블 수정
+ALTER TABLE `Foam`
+ADD COLUMN `type` VARCHAR(100) DEFAULT NULL,
+ADD COLUMN `thickness` FLOAT DEFAULT NULL,
+ADD COLUMN `density` FLOAT DEFAULT NULL,
+ADD COLUMN `sound_dampening` FLOAT DEFAULT NULL,
+ADD COLUMN `compression` FLOAT DEFAULT NULL,
+ADD COLUMN `durability` FLOAT DEFAULT NULL,
+ADD COLUMN `price_tier` FLOAT DEFAULT NULL;
+
+-- Gasket 테이블 수정
+ALTER TABLE `Gasket`
+ADD COLUMN `thickness` FLOAT DEFAULT NULL,
+ADD COLUMN `flexibility` FLOAT DEFAULT NULL,
+ADD COLUMN `dampening` FLOAT DEFAULT NULL,
+ADD COLUMN `durability` FLOAT DEFAULT NULL,
+ADD COLUMN `price_tier` FLOAT DEFAULT NULL;
+
+-- Cable 테이블 수정
+ALTER TABLE `Cable`
+ADD COLUMN `type` VARCHAR(100) DEFAULT NULL,
+ADD COLUMN `connector` VARCHAR(100) DEFAULT NULL,
+ADD COLUMN `quality` FLOAT DEFAULT NULL,
+ADD COLUMN `flexibility` FLOAT DEFAULT NULL,
+ADD COLUMN `durability` FLOAT DEFAULT NULL,
+ADD COLUMN `price_tier` FLOAT DEFAULT NULL,
+ADD COLUMN `detachable` BOOLEAN DEFAULT NULL; 

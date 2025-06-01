@@ -1,0 +1,6 @@
+name,material,profile,thickness,sound_profile,build_quality,price_tier,rgb_compatible,durability
+GMK (ABS),abs,cherry,0.85,0.7,0.9,0.9,True,0.7
+ePBT (PBT),pbt,cherry,0.8,0.8,0.85,0.7,True,0.9
+MT3 (PBT),pbt,mt3,0.9,0.85,0.9,0.8,False,0.9
+SA (ABS),abs,sa,0.8,0.75,0.85,0.8,True,0.7
+KAT (PBT),pbt,kat,0.85,0.8,0.85,0.75,True,0.85

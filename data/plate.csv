@@ -1,0 +1,11 @@
+name,material,stiffness,sound_profile,price_tier,weight,flex
+Aluminum Plate,aluminum,0.8,0.6,0.5,0.7,0.3
+FR4 Plate,fr4,0.6,0.7,0.3,0.4,0.6
+POM Plate,pom,0.4,0.8,0.4,0.3,0.7
+Brass Plate,brass,0.9,0.7,0.7,0.9,0.2
+Carbon Fiber Plate,carbon_fiber,0.7,0.6,0.6,0.4,0.5
+Polycarbonate Plate,polycarbonate,0.5,0.8,0.4,0.3,0.7
+Steel Plate,steel,0.95,0.5,0.5,0.8,0.1
+Copper Plate,copper,0.85,0.75,0.8,0.85,0.25
+ABS Plate,abs,0.4,0.6,0.2,0.2,0.8
+PETG Plate,petg,0.45,0.7,0.3,0.25,0.75

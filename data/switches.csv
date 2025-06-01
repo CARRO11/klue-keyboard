@@ -1,0 +1,11 @@
+name,type,linearScore,tactileScore,soundScore,weightScore,smoothnessScore,speedScore,stabilityScore,durabilityScore
+Cherry MX Red,linear,0.9,0.1,0.5,0.6,0.8,0.8,0.7,0.8
+Cherry MX Brown,tactile,0.3,0.8,0.6,0.6,0.7,0.7,0.7,0.8
+Cherry MX Blue,clicky,0.3,0.8,0.9,0.7,0.6,0.6,0.7,0.8
+Gateron Yellow,linear,0.85,0.1,0.6,0.55,0.9,0.85,0.75,0.7
+Gateron Black Ink V2,linear,0.95,0.1,0.8,0.7,0.95,0.8,0.85,0.75
+Boba U4T,tactile,0.2,0.95,0.85,0.65,0.85,0.7,0.9,0.85
+Holy Panda,tactile,0.2,0.9,0.8,0.7,0.8,0.65,0.85,0.8
+Kailh Box White,clicky,0.3,0.85,0.9,0.6,0.7,0.75,0.8,0.85
+Alpaca V2,linear,0.9,0.1,0.75,0.6,0.9,0.85,0.8,0.8
+NK Cream,linear,0.85,0.15,0.85,0.65,0.75,0.8,0.8,0.85

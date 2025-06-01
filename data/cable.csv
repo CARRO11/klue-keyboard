@@ -1,0 +1,4 @@
+name,type,connector,length,quality,flexibility,durability,price_tier,detachable
+Custom Coiled (USB-C),coiled,usb_c,1.5,0.9,0.8,0.85,0.8,True
+Straight Cable (USB-C),straight,usb_c,1.8,0.8,0.85,0.9,0.5,True
+Magnetic Cable (USB-C),magnetic,usb_c,1.2,0.85,0.9,0.8,0.7,True
