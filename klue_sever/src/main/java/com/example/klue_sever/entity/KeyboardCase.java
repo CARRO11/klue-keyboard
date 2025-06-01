@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "keyboard_case")
+@Table(name = "KeyboardCase")
 public class KeyboardCase {
     
     @Id
@@ -28,9 +28,11 @@ public class KeyboardCase {
 
     private String description;
 
-    @OneToMany(mappedBy = "keyboardCase", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "keyboardCase", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<Plate> plates = new ArrayList<>();
 
-    @OneToMany(mappedBy = "keyboardCase", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "keyboardCase", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<PCB> pcbs = new ArrayList<>();
 } 

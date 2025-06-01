@@ -11,6 +11,7 @@ import ListPage from "./pages/ListPage";
 import CategoryPage from "./pages/CategoryPage";
 import BuildPage from "./pages/BuildPage";
 import KeyboardRecommendation from "./pages/KeyboardRecommendation";
+import PartsManagement from "./pages/PartsManagement";
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -67,6 +68,7 @@ const App: React.FC = () => {
           <Route path="/site" element={<SitePage />} />
           <Route path="/list" element={<ListPage />} />
           <Route path="/list/:categoryId" element={<CategoryPage />} />
+          <Route path="/parts" element={<PartsManagement />} />
           <Route path="/build" element={<BuildPage />} />
           <Route path="/ai" element={<KeyboardRecommendation />} />
         </Routes>

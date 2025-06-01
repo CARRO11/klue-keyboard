@@ -81,6 +81,9 @@ const Navbar = () => {
         >
           New product
         </MenuItem>
+        <MenuItem to="/parts" $isActive={location.pathname === "/parts"}>
+          Parts
+        </MenuItem>
         <MenuItem to="/build" $isActive={location.pathname === "/build"}>
           Build
         </MenuItem>

@@ -36,6 +36,9 @@ public class HardwareConnector {
     @Column(length = 100)
     private String material;
 
+    @Column(length = 50)
+    private String size;
+
     @Column(name = "component_id")
     private Integer componentId;
 } 

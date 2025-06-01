@@ -1,0 +1,26 @@
+{
+  "framework": "create-react-app",
+  "buildCommand": "npm run build",
+  "outputDirectory": "build",
+  "installCommand": "npm install",
+  "devCommand": "npm start",
+  "env": {
+    "REACT_APP_API_URL": "@api_url"
+  },
+  "build": {
+    "env": {
+      "REACT_APP_API_URL": "@api_url"
+    }
+  },
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "headers": { "cache-control": "s-maxage=31536000,immutable" },
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
