@@ -205,11 +205,11 @@ const PartsManagement: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log(`Loading ${partType} parts, page ${page}`); // 디버깅용 로그
+      console.log(`Loading ${partType} parts`); // 디버깅용 로그
 
       const response = await allPartsService.getAll(partType, {
-        page,
-        size: 6,
+        page: 0,
+        size: 1000, // 모든 데이터를 가져오기 위해 큰 사이즈 설정
       });
 
       console.log("API Response:", response); // 디버깅용 로그
@@ -221,8 +221,8 @@ const PartsManagement: React.FC = () => {
       console.log(`Found ${partsData.length} ${partType} items`); // 디버깅용 로그
 
       setParts(partsData);
-      setCurrentPage(response.currentPage || page);
-      setTotalPages(response.totalPages || Math.ceil(partsData.length / 6));
+      setCurrentPage(0);
+      setTotalPages(1); // 페이징이 없으므로 1페이지로 설정
     } catch (err: any) {
       console.error("Load parts error:", err);
       setError(
@@ -248,7 +248,7 @@ const PartsManagement: React.FC = () => {
     setCurrentPartType(partType);
     setCurrentPage(0);
     setSearchKeyword("");
-    loadParts(partType, 0);
+    loadParts(partType);
     loadStats(partType);
   };
 
@@ -278,9 +278,9 @@ const PartsManagement: React.FC = () => {
           part.material?.toLowerCase().includes(searchKeyword.toLowerCase())
       );
 
-      setParts(filteredData.slice(0, 6)); // 처음 6개만 표시
+      setParts(filteredData); // 모든 검색 결과 표시
       setCurrentPage(0);
-      setTotalPages(Math.ceil(filteredData.length / 6));
+      setTotalPages(1); // 페이징이 없으므로 1페이지로 설정
     } catch (err) {
       setError("검색에 실패했습니다.");
       console.error("Search error:", err);
@@ -457,21 +457,6 @@ const PartsManagement: React.FC = () => {
         <LoadingDiv>
           📦 {PART_TYPE_LABELS[currentPartType]} 데이터가 없습니다.
         </LoadingDiv>
-      )}
-
-      {/* 페이지네이션 */}
-      {totalPages > 1 && (
-        <PaginationDiv>
-          {Array.from({ length: totalPages }, (_, i) => (
-            <PageButton
-              key={i}
-              active={i === currentPage}
-              onClick={() => loadParts(currentPartType, i)}
-            >
-              {i + 1}
-            </PageButton>
-          ))}
-        </PaginationDiv>
       )}
     </Container>
   );

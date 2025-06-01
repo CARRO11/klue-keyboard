@@ -173,7 +173,7 @@ const KeyboardRecommendation: React.FC = () => {
               rel="noopener noreferrer"
               className="buy-link"
             >
-              구매하기
+              링크
             </a>
           )}
         </div>

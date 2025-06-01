@@ -1,405 +1,246 @@
-# 🎯 KLUE 키보드 부품 추천 시스템
+# 🎹 KLUE - 커스텀 키보드 추천 시스템
 
-## 📋 프로젝트 개요
+> **스위치, 키캡, 하우징, 조립까지! 초보자도 쉽게 접근할 수 있는 커스텀 키보드 플랫폼**
 
-KLUE 키보드 부품 추천 시스템은 AI 기반 자연어 처리를 통해 사용자의 요구사항을 분석하고, 최적의 키보드 부품 조합을 추천하는 종합 시스템입니다.
+![KLUE System](https://img.shields.io/badge/KLUE-키보드추천시스템-blue)
+![Python](https://img.shields.io/badge/Python-3.8+-green)
+![React](https://img.shields.io/badge/React-18+-blue)
+![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange)
 
-### ✨ 주요 기능
+## 📋 목차
 
-- 🤖 **AI 자연어 처리**: "조용한 커스텀키보드 부품 추천해줘" 같은 자연어 입력 지원
-- 🎯 **개인 맞춤형 추천**: 사용자 선호도 기반 정확한 부품 매칭
-- 💬 **구어체 친근한 설명**: AI가 친구처럼 재미있게 설명
-- 🔗 **구매 링크 제공**: 추천 부품의 직접 구매 링크 포함
-- 📊 **상세한 부품 정보**: 78개 부품의 체계적인 데이터베이스
-- 🌐 **다양한 인터페이스**: CLI, 웹 UI, REST API 지원
+- [시스템 개요](#-시스템-개요)
+- [빠른 시작](#-빠른-시작)
+- [기능 소개](#-기능-소개)
+- [완전 설치](#-완전-설치)
+- [문제 해결](#-문제-해결)
+- [개발자 가이드](#-개발자-가이드)
 
-## 🏗️ 시스템 아키텍처
+## 🎯 시스템 개요
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   React Client  │    │   Flask API     │    │   MySQL DB      │
-│                 │◄──►│                 │◄──►│                 │
-│ - 웹 UI         │    │ - 자연어 처리   │    │ - 부품 데이터   │
-│ - 자연어 입력   │    │ - AI 추천       │    │ - 선호도 매칭   │
-│ - 결과 표시     │    │ - 구어체 설명   │    │ - 구매 링크     │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │
-         │              ┌─────────────────┐
-         │              │   CLI Tool      │
-         │              │                 │
-         └──────────────│ - 터미널 인터페이스│
-                        │ - 직접 실행     │
-                        │ - 테스트 도구   │
-                        └─────────────────┘
-```
+**KLUE**는 커스텀 키보드 입문자와 전문가 모두를 위한 종합 추천 플랫폼입니다.
 
-## 📦 데이터베이스 구성
+### 주요 구성
 
-### 부품 카테고리별 데이터 수:
+- **🤖 AI 추천 엔진**: 사용자 취향 분석 후 맞춤형 키보드 구성 추천
+- **🔧 부품 데이터베이스**: 스위치, 키캡, PCB, 플레이트 등 15,000+ 부품 정보
+- **🛠️ 빌드 시뮬레이터**: 가상으로 키보드를 조립해보는 기능
+- **🌐 쇼핑 가이드**: 국내외 주요 커스텀 키보드 쇼핑몰 정보
 
-- **스위치 (Switches)**: 15개 (Linear, Tactile, Clicky, Magnetic)
-- **플레이트 (Plate)**: 20개 (Aluminum, FR4, POM, PC, PETG 등)
-- **스태빌라이저 (Stabilizer)**: 18개 (Screw-in, Clip-in, Plate-mount)
-- **키캡 (Keycap)**: 15개 (Cherry, OEM, SA, XDA, KAT, MT3 프로파일)
-- **PCB**: 10개 (60%, 65%, 75% 레이아웃, 핫스왑 지원)
+### 기술 스택
 
-**총 78개 부품**의 상세 정보와 구매 링크 포함
+- **Frontend**: React 18 + TypeScript + Emotion
+- **Backend**: Python Flask + MySQL
+- **AI**: Custom Recommendation Algorithm
+- **Database**: MySQL 8.0+ (15,000+ 부품 데이터)
 
-## 🚀 설치 및 실행
+## 🚀 빠른 시작
 
-## ⚡ 빠른 시작
-
-### 1. 프로젝트 클론
+### 현재 환경에서 재실행 (권장)
 
 ```bash
-git clone https://github.com/CARRO11/klue-keyboard.git
-cd klue-keyboard
+# 1. KLUE 시스템 실행
+./quick_start.sh
+
+# 2. 브라우저에서 접속
+# http://localhost:3000
+
+# 3. 시스템 종료
+./stop_klue.sh
 ```
 
-### 2. OpenAI API 키 설정 (필수!)
-
-**⚠️ 중요: AI 추천 기능(Tony)을 사용하려면 OpenAI API 키가 필요합니다.**
-
-#### 방법 1: 템플릿 파일 사용 (권장)
+### 처음 설치하는 경우
 
 ```bash
-# 템플릿 파일을 복사
-cp klueai.env.template klueai.env
+# 1. 완전 자동 설치 및 실행
+./complete_setup.sh
 
-# 텍스트 에디터로 파일 열기
-nano klueai.env
-# 또는
-code klueai.env
+# 2. 또는 수동 설치 (SETUP_GUIDE.md 참조)
 ```
 
-#### 방법 2: 직접 생성
+## 🎮 기능 소개
+
+### 1. 🏠 홈 대시보드
+
+- 실시간 부품 통계 확인
+- 카테고리별 부품 개수 표시
+- 빠른 네비게이션
+
+### 2. 🤖 AI 키보드 추천
+
+- **용도별 추천**: 게이밍, 타이핑, 프로그래밍
+- **예산별 추천**: 10만원 ~ 100만원+
+- **취향별 추천**: 스위치 타입, 소음 레벨, 디자인
+- **완성품 추천**: 모든 부품이 포함된 완전한 키보드 구성
+
+### 3. 🔧 부품 관리
+
+- **스위치**: 2,000+ 종류 (Linear, Tactile, Clicky)
+- **키캡**: 다양한 프로파일과 재질
+- **PCB/플레이트**: 레이아웃별 호환성 정보
+- **케이스**: 재질, 마운트 방식별 분류
+
+### 4. 🛠️ 키보드 빌드
+
+- 가상 키보드 조립 시뮬레이션
+- 부품 호환성 자동 체크
+- 총 비용 계산
+- 조립 가이드 제공
+
+### 5. 🌐 쇼핑 사이트 가이드
+
+- **해외 브랜드**: KBDfans, Drop, NovelKeys, ZealPC, Keychron
+- **국내 브랜드**: 레오폴드, 아이락스, 큐센, 스웨그키
+- 각 사이트별 특징, 배송 정보, 가격대 안내
+
+## 🔧 완전 설치
+
+### 전제 조건
 
 ```bash
-# 새 파일 생성
-echo "OPENAI_API_KEY=sk-proj-여기에-실제-키-입력" > klueai.env
-echo "DB_HOST=localhost" >> klueai.env
-echo "DB_USER=root" >> klueai.env
-echo "DB_PASSWORD=shin" >> klueai.env
-echo "DB_NAME=klue_keyboard" >> klueai.env
+# macOS 기준
+brew install python node mysql
+
+# 또는 개별 설치
+# Python 3.8+
+# Node.js 16+
+# MySQL 8.0+
 ```
 
-#### API 키 발급 방법:
-
-1. [OpenAI 플랫폼](https://platform.openai.com/api-keys)에서 계정 생성
-2. API 키 생성 (유료 계정 필요)
-3. `klueai.env` 파일에서 다음 라인 수정:
-
-   ```
-   # 수정 전
-   OPENAI_API_KEY=sk-proj-여기에-실제-키-입력
-
-   # 수정 후 (실제 키로 교체)
-   OPENAI_API_KEY=sk-proj-실제발급받은키여기에입력
-   ```
-
-### 3. 데이터베이스 설정
+### 자동 설치
 
 ```bash
-mysql -u root -p
-CREATE DATABASE klue_keyboard;
-# 제공된 SQL 파일들로 테이블 생성
+# 환경이 전혀 없는 상태에서도 설치 가능
+./complete_setup.sh
 ```
 
-### 4. 백엔드 실행
+### 수동 설치
 
-```bash
-# Spring Boot 서버
-cd klue_sever
-./gradlew bootRun
-
-# Python AI 서버 (포트 5002) - 새 터미널에서
-python keyboard_recommender.py
-```
-
-### 5. 프론트엔드 실행
-
-```bash
-cd klue_client
-npm install
-npm start
-```
+자세한 수동 설치 가이드는 [`SETUP_GUIDE.md`](./SETUP_GUIDE.md)를 참조하세요.
 
 ## 🚨 문제 해결
 
-### "AI 추천 기능이 작동하지 않아요!"
+### 일반적인 문제들
 
-- `klueai.env` 파일이 있는지 확인
-- OpenAI API 키가 올바르게 설정되었는지 확인
-- API 키에 잔액이 있는지 확인 (유료 서비스)
-
-### "Tony가 응답하지 않아요!"
-
-- Python 서버가 실행 중인지 확인 (`python keyboard_recommender.py`)
-- 포트 5002가 사용 중인지 확인
-
-## 🎯 기능별 사용 가이드
-
-### 🍷 AI 추천 (Tony)
-
-- **URL**: `http://localhost:3000/ai`
-- **요구사항**: OpenAI API 키 필수
-- **사용법**: "조용한 사무용 키보드" 같은 자연어로 요청
-
-### 🔧 Build 페이지
-
-- **URL**: `http://localhost:3000/build`
-- **요구사항**: 데이터베이스만 필요
-- **사용법**: 드롭다운에서 부품 선택
-
-### 📊 일반 기능 (List, Site 등)
-
-- **요구사항**: API 키 불필요
-- **사용법**: 바로 사용 가능
-
-## 💻 사용 방법
-
-### 1. CLI 도구 (터미널)
+#### 1. MySQL 연결 오류
 
 ```bash
-# 대화형 CLI 실행
-python3 keyboard_cli.py
+# MySQL 서비스 확인
+brew services list | grep mysql
 
-# 입력 예시:
-💬 원하는 키보드를 설명해주세요: 조용한 커스텀키보드 부품 추천해줘
+# MySQL 수동 시작
+brew services start mysql
+
+# 연결 테스트
+mysql -u root -pshin -e "SHOW DATABASES;"
 ```
 
-### 2. 웹 인터페이스
-
-브라우저에서 `http://localhost:3000` 접속
-
-- 자연어 입력 또는 상세 설정 선택
-- 실시간 추천 결과 확인
-- AI 설명 및 구매 링크 제공
-
-### 3. REST API
-
-#### 간편 추천 API (권장)
+#### 2. 포트 충돌
 
 ```bash
-curl -X POST http://localhost:5002/api/simple-recommend \
-  -H "Content-Type: application/json" \
-  -d '{"message": "조용한 커스텀키보드 부품 추천해줘"}'
+# 포트 사용 확인
+lsof -ti:8080  # 백엔드
+lsof -ti:3000  # 프론트엔드
+
+# 프로세스 강제 종료
+./stop_klue.sh
 ```
 
-#### 빠른 추천 API (GET)
+#### 3. 패키지 오류
 
 ```bash
-curl "http://localhost:5002/api/quick-recommend/게이밍용%20고급%20키보드"
+# Python 패키지 재설치
+pip3 install flask flask-cors mysql-connector-python numpy
+
+# npm 패키지 재설치
+cd klue_client && npm install
 ```
 
-## 🔧 API 엔드포인트
-
-### 추천 API
-
-- `POST /api/simple-recommend` - 간편 텍스트 추천 (권장)
-- `GET /api/quick-recommend/<message>` - URL 파라미터 추천
-- `POST /api/recommend/natural` - 자연어 추천
-- `POST /api/recommend` - 상세 선호도 추천
-
-### 정보 조회 API
-
-- `GET /api/health` - 서버 상태 확인
-- `GET /api/components` - 부품 통계 조회
-- `GET /api/components/<category>` - 카테고리별 부품 목록
-- `GET /api/preferences/templates` - 선호도 템플릿
-
-## 🧪 테스트
-
-### API 테스트
+#### 4. 스크립트 권한 오류
 
 ```bash
-# 백엔드 API 테스트 도구
-python3 test_backend_api.py
-
-# 추천 시스템 테스트
-python3 test_recommender.py
+chmod +x quick_start.sh complete_setup.sh stop_klue.sh
 ```
 
-### 테스트 케이스 예시
+### 로그 확인
 
-- "조용한 커스텀키보드 부품 추천해줘"
-- "게이밍용 고급 키보드 만들고 싶어"
-- "사무실에서 쓸 조용한 키보드"
-- "프리미엄 타이핑용 키보드"
+```bash
+# 백엔드 로그
+python3 app.py  # 직접 실행하여 오류 확인
 
-## 📁 프로젝트 구조
+# 프론트엔드 로그
+cd klue_client && npm start
+```
+
+## 🛠️ 개발자 가이드
+
+### 프로젝트 구조
 
 ```
 klue_project/
-├── 🎯 핵심 시스템
-│   ├── app.py                     # Flask API 서버
-│   ├── keyboard_recommender.py    # 추천 엔진
-│   ├── ai_recommender.py          # AI 자연어 처리
-│   └── keyboard_cli.py            # CLI 도구
-│
-├── 🌐 웹 클라이언트
-│   └── klue_client/               # React 웹 애플리케이션
-│       ├── src/pages/KeyboardRecommendation.tsx
-│       └── src/pages/KeyboardRecommendation.css
-│
-├── 🗄️ 데이터베이스
-│   ├── migrate_to_mysql.sql       # 데이터베이스 스키마
-│   ├── update_missing_data.sql    # 부품 데이터
-│   ├── update_exact_links.sql     # 구매 링크
-│   └── insert_*_data.py          # 데이터 삽입 스크립트
-│
-├── 🔧 테스트 도구
-│   ├── test_backend_api.py        # API 테스트
-│   ├── test_recommender.py        # 추천 시스템 테스트
-│   └── crawl_*.py                # 데이터 수집 도구
-│
-├── 📚 문서
-│   ├── README.md                  # 프로젝트 개요 (이 파일)
-│   ├── BACKEND_API_GUIDE.md       # API 사용 가이드
-│   └── DEPLOYMENT_GUIDE.md        # 배포 가이드
-│
-└── ⚙️ 설정
-    ├── requirements.txt           # Python 패키지
-    ├── klueai.env                # 환경 변수 템플릿
-    └── .env                      # 실제 환경 변수 (생성 필요)
+├── app.py                 # Flask 백엔드 메인
+├── keyboard_recommender.py # MySQL 연결 및 데이터 관리
+├── ai_recommender.py      # AI 추천 엔진
+├── klue_client/           # React 프론트엔드
+│   ├── src/
+│   │   ├── components/    # 재사용 컴포넌트
+│   │   ├── pages/         # 페이지 컴포넌트
+│   │   └── services/      # API 서비스
+│   └── package.json
+├── quick_start.sh         # 빠른 실행 스크립트
+├── complete_setup.sh      # 완전 설치 스크립트
+├── stop_klue.sh          # 종료 스크립트
+└── SETUP_GUIDE.md        # 상세 설치 가이드
 ```
 
-## 🤖 AI 기능
+### API 엔드포인트
 
-### 자연어 처리
+```
+GET  /api/health           # 헬스체크
+GET  /switches             # 스위치 목록
+GET  /keycaps              # 키캡 목록
+GET  /pcbs                 # PCB 목록
+GET  /plates               # 플레이트 목록
+POST /recommend            # AI 추천
+POST /recommend_complete_set # 완성품 추천
+```
 
-- **OpenAI GPT-4o-mini** 모델 사용
-- 한국어 자연어 → 구조화된 선호도 변환
-- 키워드 해석 (조용한→sound_profile=1-3, 게이밍→speed_score=8-10)
-
-### 구어체 설명 생성
-
-- 친근한 말투 ("~해요", "~거든요", "완전", "정말")
-- 이모지 활용 (😊, 👍, 🎯, 💡)
-- 개인적 경험담 포함
-- 쉬운 전문용어 설명
-
-## 📊 추천 알고리즘
-
-### 1. 선호도 분석
-
-- 스위치 타입 (Linear/Tactile/Clicky)
-- 소음 수준 (1-10)
-- 촉감 강도 (1-10)
-- 속도감 (1-10)
-- 가격대 (1-4)
-- RGB 선호도
-
-### 2. 부품 매칭
-
-- 가중치 기반 점수 계산
-- 카테고리별 최적 조합 선택
-- 호환성 검증
-- 가격대 균형 조정
-
-### 3. 결과 최적화
-
-- 상위 3-5개 부품 추천
-- 시너지 효과 고려
-- 구매 가능성 확인
-- 사용자 피드백 반영
-
-## 🌟 특별 기능
-
-### 템플릿 시스템
-
-- **게이밍**: 빠른 반응속도, RGB 지원
-- **사무용**: 조용한 타건음, 편안한 사용감
-- **타이핑**: 장시간 사용 최적화
-- **프리미엄**: 최고급 부품 조합
-
-### 구매 연동
-
-- 실제 구매 가능한 링크 제공
-- 가격 정보 포함
-- 재고 상태 고려
-- 다양한 쇼핑몰 연결
-
-## 🚀 배포 및 운영
-
-### 개발 환경
+### 개발 환경 실행
 
 ```bash
-# 로컬 개발 서버
-python3 app.py  # API 서버
-npm start       # React 클라이언트
+# 백엔드 개발 모드
+python3 app.py
+
+# 프론트엔드 개발 모드
+cd klue_client && npm start
 ```
 
-### 프로덕션 배포
+### 데이터베이스 스키마
 
-```bash
-# Gunicorn으로 API 서버 실행
-pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:5002 app:app
+- **Switches**: 스위치 정보 (브랜드, 타입, 힘, 가격 등)
+- **Keycaps**: 키캡 정보 (프로파일, 재질, 색상 등)
+- **PCBs**: PCB 정보 (레이아웃, 연결 방식 등)
+- **Plates**: 플레이트 정보 (재질, 호환성 등)
 
-# React 빌드 및 배포
-npm run build
-# 빌드된 파일을 웹 서버에 배포
-```
+## 📞 지원
 
-## 📈 성능 및 확장성
+### 실행 스크립트 요약
 
-### 현재 성능
+| 명령어                | 용도        | 상황                  |
+| --------------------- | ----------- | --------------------- |
+| `./quick_start.sh`    | 빠른 재실행 | 이미 설치된 환경      |
+| `./complete_setup.sh` | 완전 설치   | 처음 설치하는 경우    |
+| `./stop_klue.sh`      | 시스템 종료 | 실행 중인 서버들 종료 |
 
-- **응답 시간**: 10-30초 (AI 처리 포함)
-- **동시 사용자**: 10-50명 (개발 환경)
-- **데이터베이스**: 78개 부품, 확장 가능
-- **API 처리량**: 초당 2-5 요청
+### 접속 주소
 
-### 확장 계획
-
-- 부품 데이터 지속 확장
-- 사용자 피드백 학습
-- 추천 정확도 개선
-- 다국어 지원
-
-## 🔒 보안 및 개인정보
-
-- OpenAI API 키 환경 변수 관리
-- 사용자 입력 검증 및 필터링
-- SQL 인젝션 방지
-- CORS 설정으로 안전한 API 접근
-
-## 🤝 기여 방법
-
-1. **부품 데이터 추가**: 새로운 키보드 부품 정보 기여
-2. **번역**: 다국어 지원을 위한 번역 작업
-3. **UI/UX 개선**: 사용자 인터페이스 개선 제안
-4. **알고리즘 최적화**: 추천 정확도 향상 방안
-
-## 📞 지원 및 문의
-
-### 문제 해결
-
-1. **서버 연결 실패**: `curl http://localhost:5002/api/health`로 상태 확인
-2. **AI 응답 없음**: OpenAI API 키 설정 확인
-3. **데이터베이스 오류**: MySQL 연결 및 권한 확인
-
-### 추가 문서
-
-- [백엔드 API 가이드](BACKEND_API_GUIDE.md)
-- [배포 가이드](DEPLOYMENT_GUIDE.md)
-
-## 📄 라이선스
-
-이 프로젝트는 MIT 라이선스 하에 배포됩니다.
+- **홈페이지**: http://localhost:3000
+- **AI 추천**: http://localhost:3000/ai
+- **부품 관리**: http://localhost:3000/parts
+- **키보드 빌드**: http://localhost:3000/build
+- **쇼핑 가이드**: http://localhost:3000/site
+- **백엔드 API**: http://localhost:8080
 
 ---
 
-## 🎉 완성된 기능 요약
-
-✅ **자연어 처리**: "조용한 키보드" → 구조화된 선호도  
-✅ **AI 추천 엔진**: 78개 부품에서 최적 조합 선택  
-✅ **구어체 설명**: 친근하고 재미있는 한글 설명  
-✅ **웹 인터페이스**: React 기반 모던 UI  
-✅ **REST API**: 다양한 플랫폼 연동 가능  
-✅ **CLI 도구**: 터미널에서 직접 사용  
-✅ **구매 연동**: 실제 구매 링크 제공  
-✅ **테스트 도구**: 완전한 테스트 환경
-
-**🚀 이제 어디서든 "조용한 커스텀키보드 부품 추천해줘"라고 말하면 AI가 친근하게 답해드립니다!**
+**💡 팁**: 문제가 발생하면 `./stop_klue.sh && ./quick_start.sh`로 재시작해보세요!

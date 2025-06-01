@@ -1,5 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
+import {
+  allPartsService,
+  PartType,
+  PART_RESPONSE_FIELDS,
+} from "../services/allPartsService";
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -168,6 +173,7 @@ interface Component {
   material?: string;
   profile?: string;
   price_tier?: number;
+  layout?: string;
   [key: string]: any;
 }
 
@@ -226,13 +232,13 @@ const BuildPage = () => {
       id: "pcb",
       label: "PCB 기판",
       placeholder: "-",
-      apiEndpoint: "pcb",
+      apiEndpoint: "pcbs",
     },
     {
       id: "plate",
       label: "Plate 보강판",
       placeholder: "-",
-      apiEndpoint: "plate",
+      apiEndpoint: "plates",
     },
     {
       id: "stabilizers",
@@ -249,16 +255,18 @@ const BuildPage = () => {
         const categoriesWithComponents = await Promise.all(
           initialCategories.map(async (category) => {
             try {
-              const response = await fetch(
-                `http://localhost:5002/api/components/${category.apiEndpoint}`
+              const response = await allPartsService.getAll(
+                category.apiEndpoint as PartType,
+                { page: 0, size: 1000 }
               );
-              if (!response.ok) {
-                throw new Error(`Failed to fetch ${category.apiEndpoint}`);
-              }
-              const data = await response.json();
+
+              const fieldName =
+                PART_RESPONSE_FIELDS[category.apiEndpoint as PartType];
+              const componentsData = (response as any)[fieldName] || [];
+
               return {
                 ...category,
-                components: data.success ? data.components : [],
+                components: componentsData,
               };
             } catch (err) {
               console.error(`Error fetching ${category.apiEndpoint}:`, err);
@@ -316,8 +324,17 @@ const BuildPage = () => {
     if (categoryId === "keycaps" && component.profile) {
       details.push(`프로파일: ${component.profile}`);
     }
-    if (categoryId === "plate" && component.material) {
+    if (
+      (categoryId === "plate" || categoryId === "pcb") &&
+      component.material
+    ) {
       details.push(`재질: ${component.material}`);
+    }
+    if (categoryId === "pcb" && component.layout) {
+      details.push(`레이아웃: ${component.layout}`);
+    }
+    if (categoryId === "stabilizers" && component.type) {
+      details.push(`타입: ${component.type}`);
     }
     if (component.price_tier) {
       const priceTiers: Record<number, string> = {
