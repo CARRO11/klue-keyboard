@@ -105,6 +105,39 @@ export const allPartsService = {
     return response.data;
   },
 
+  // 모든 타입의 부품 한 번에 조회
+  getAllParts: async (): Promise<Record<string, any[]>> => {
+    try {
+      const partTypes: PartType[] = Object.keys(
+        PART_TYPE_ENDPOINTS
+      ) as PartType[];
+      const results: Record<string, any[]> = {};
+
+      // 모든 부품 타입을 병렬로 조회
+      await Promise.all(
+        partTypes.map(async (partType) => {
+          try {
+            const response = await allPartsService.getAll(partType, {
+              page: 1,
+              size: 1000,
+            });
+            const fieldName = PART_RESPONSE_FIELDS[partType];
+            const partsData = response[fieldName as keyof PartsListResponse];
+            results[fieldName] = Array.isArray(partsData) ? partsData : [];
+          } catch (error) {
+            console.error(`Failed to fetch ${partType}:`, error);
+            results[PART_RESPONSE_FIELDS[partType]] = [];
+          }
+        })
+      );
+
+      return results;
+    } catch (error) {
+      console.error("Failed to fetch all parts:", error);
+      return {};
+    }
+  },
+
   // ID로 부품 조회
   getById: async (partType: PartType, id: number): Promise<any> => {
     const endpoint = PART_TYPE_ENDPOINTS[partType];

@@ -81,25 +81,15 @@ h3 {
   position: relative;
 }
 
-.sommelier-title {
-  font-size: 2rem;
-  font-weight: 700;
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 600;
   color: #2d3748;
-  text-align: center;
-  flex: 1;
   margin: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: none;
-  border: none;
-  padding: 0;
+  flex: 1;
 }
 
 .settings-icon {
-  position: absolute;
-  right: 0;
   width: 50px;
   height: 50px;
   border: 2px solid #e2e8f0;
@@ -536,10 +526,6 @@ h3 {
     font-size: 2rem;
   }
 
-  .sommelier-title {
-    font-size: 1.5rem;
-  }
-
   .settings-icon {
     width: 40px;
     height: 40px;
@@ -567,10 +553,6 @@ h3 {
 @media (max-width: 480px) {
   h1 {
     font-size: 1.8rem;
-  }
-
-  .sommelier-title {
-    font-size: 1.3rem;
   }
 
   .settings-icon {

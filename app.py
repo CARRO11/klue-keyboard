@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import json
 from decimal import Decimal
+from datetime import datetime, date
 from keyboard_recommender import KeyboardRecommender
 from ai_recommender import AIRecommender
 
@@ -15,9 +16,11 @@ recommender = KeyboardRecommender()
 ai_recommender = AIRecommender()
 
 def convert_decimals(obj):
-    """Decimal 타입을 float로 변환하는 재귀 함수"""
+    """Decimal, datetime 타입을 JSON 직렬화 가능한 형태로 변환하는 재귀 함수"""
     if isinstance(obj, Decimal):
         return float(obj)
+    elif isinstance(obj, (datetime, date)):
+        return obj.isoformat()
     elif isinstance(obj, dict):
         return {key: convert_decimals(value) for key, value in obj.items()}
     elif isinstance(obj, list):
@@ -186,6 +189,7 @@ def get_natural_language_recommendations():
             return jsonify({"error": "Missing required field: message"}), 400
         
         user_message = data['message']
+        system_prompt = data.get('systemPrompt')  # 사용자 정의 시스템 프롬프트
         
         # 자연어를 선호도로 변환
         preferences = ai_recommender.parse_natural_language_to_preferences(user_message)
@@ -201,9 +205,9 @@ def get_natural_language_recommendations():
         complete_result = recommender.recommend_complete_set(preferences)
         recommendations = complete_result.get('recommendations', {})
         
-        # AI 설명 생성 (자연어 요청 포함)
+        # AI 설명 생성 (사용자 정의 시스템 프롬프트 전달)
         ai_explanation = ai_recommender.generate_natural_language_explanation(
-            user_message, recommendations, preferences
+            user_message, recommendations, preferences, system_prompt
         )
         
         # 응답 데이터 구성
@@ -276,6 +280,122 @@ def get_components_by_category(category):
             "error": str(e),
             "message": f"{category} 부품 조회 중 오류가 발생했습니다."
         }), 500
+
+@app.route('/switches', methods=['GET'])
+def get_switches():
+    """스위치 목록 조회"""
+    try:
+        components = recommender.get_components_by_category('switches')
+        return jsonify({
+            "success": True,
+            "switches": components,
+            "count": len(components)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/keycaps', methods=['GET'])
+def get_keycaps():
+    """키캡 목록 조회"""
+    try:
+        components = recommender.get_components_by_category('keycaps')
+        return jsonify({
+            "success": True,
+            "keycaps": components,
+            "count": len(components)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/pcbs', methods=['GET'])
+def get_pcbs():
+    """PCB 목록 조회"""
+    try:
+        components = recommender.get_components_by_category('pcb')
+        return jsonify({
+            "success": True,
+            "pcbs": components,
+            "count": len(components)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/plates', methods=['GET'])
+def get_plates():
+    """플레이트 목록 조회"""
+    try:
+        components = recommender.get_components_by_category('plate')
+        return jsonify({
+            "success": True,
+            "plates": components,
+            "count": len(components)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/stabilizers', methods=['GET'])
+def get_stabilizers():
+    """스태빌라이저 목록 조회"""
+    try:
+        components = recommender.get_components_by_category('stabilizers')
+        return jsonify({
+            "success": True,
+            "stabilizers": components,
+            "count": len(components)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# 추가 부품 카테고리들 (빈 배열로 시작)
+@app.route('/gaskets', methods=['GET'])
+def get_gaskets():
+    """가스켓 목록 조회"""
+    return jsonify({
+        "success": True,
+        "gaskets": [],
+        "count": 0,
+        "message": "가스켓 데이터가 준비 중입니다."
+    })
+
+@app.route('/foams', methods=['GET'])
+def get_foams():
+    """폼 목록 조회"""
+    return jsonify({
+        "success": True,
+        "foams": [],
+        "count": 0,
+        "message": "폼 데이터가 준비 중입니다."
+    })
+
+@app.route('/cables', methods=['GET'])
+def get_cables():
+    """케이블 목록 조회"""
+    return jsonify({
+        "success": True,
+        "cables": [],
+        "count": 0,
+        "message": "케이블 데이터가 준비 중입니다."
+    })
+
+@app.route('/sound-dampeners', methods=['GET'])
+def get_sound_dampeners():
+    """사운드 댐퍼 목록 조회"""
+    return jsonify({
+        "success": True,
+        "soundDampeners": [],
+        "count": 0,
+        "message": "사운드 댐퍼 데이터가 준비 중입니다."
+    })
+
+@app.route('/hardware-connectors', methods=['GET'])
+def get_hardware_connectors():
+    """하드웨어 커넥터 목록 조회"""
+    return jsonify({
+        "success": True,
+        "hardwareConnectors": [],
+        "count": 0,
+        "message": "하드웨어 커넥터 데이터가 준비 중입니다."
+    })
 
 @app.route('/api/preferences/templates', methods=['GET'])
 def get_preference_templates():
@@ -507,5 +627,105 @@ def simple_recommend_logic(user_message):
     json_response = json.dumps(response, ensure_ascii=False, indent=2)
     return Response(json_response, content_type='application/json; charset=utf-8')
 
+@app.route('/switches/stats', methods=['GET'])
+def get_switches_stats():
+    """스위치 통계 조회"""
+    try:
+        components = recommender.get_components_by_category('switches')
+        return jsonify({
+            "success": True,
+            "statistics": {
+                "total": len(components),
+                "typeDistribution": {},
+                "materialDistribution": {}
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/keycaps/stats', methods=['GET'])
+def get_keycaps_stats():
+    """키캡 통계 조회"""
+    try:
+        components = recommender.get_components_by_category('keycaps')
+        return jsonify({
+            "success": True,
+            "statistics": {
+                "total": len(components),
+                "materialDistribution": {},
+                "profileDistribution": {}
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/pcbs/stats', methods=['GET'])
+def get_pcbs_stats():
+    """PCB 통계 조회"""
+    try:
+        components = recommender.get_components_by_category('pcb')
+        return jsonify({
+            "success": True,
+            "statistics": {
+                "total": len(components),
+                "rgbSupport": sum(1 for c in components if c.get('rgb_support')),
+                "qmkViaSupport": sum(1 for c in components if c.get('qmk_via'))
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/plates/stats', methods=['GET'])
+def get_plates_stats():
+    """플레이트 통계 조회"""
+    try:
+        components = recommender.get_components_by_category('plate')
+        return jsonify({
+            "success": True,
+            "statistics": {
+                "total": len(components),
+                "materialDistribution": {}
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/stabilizers/stats', methods=['GET'])
+def get_stabilizers_stats():
+    """스태빌라이저 통계 조회"""
+    try:
+        components = recommender.get_components_by_category('stabilizers')
+        return jsonify({
+            "success": True,
+            "statistics": {
+                "total": len(components),
+                "typeDistribution": {},
+                "materialDistribution": {}
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# 추가 부품 카테고리들의 stats 엔드포인트
+@app.route('/gaskets/stats', methods=['GET'])
+def get_gaskets_stats():
+    return jsonify({"success": True, "statistics": {"total": 0}})
+
+@app.route('/foams/stats', methods=['GET'])
+def get_foams_stats():
+    return jsonify({"success": True, "statistics": {"total": 0}})
+
+@app.route('/cables/stats', methods=['GET'])
+def get_cables_stats():
+    return jsonify({"success": True, "statistics": {"total": 0}})
+
+@app.route('/sound-dampeners/stats', methods=['GET'])
+def get_sound_dampeners_stats():
+    return jsonify({"success": True, "statistics": {"total": 0}})
+
+@app.route('/hardware-connectors/stats', methods=['GET'])
+def get_hardware_connectors_stats():
+    return jsonify({"success": True, "statistics": {"total": 0}})
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5002) 
+    app.run(debug=True, host='0.0.0.0', port=8080) 

@@ -277,23 +277,20 @@ class AIRecommender:
             print(f"자연어 해석 오류: {e}")
             return None
 
-    def generate_natural_language_explanation(self, user_request: str, recommendations: Dict[str, List[Dict]], preferences: Dict) -> str:
+    def generate_natural_language_explanation(self, user_request: str, recommendations: Dict[str, List[Dict]], preferences: Dict, system_prompt: str = None) -> str:
         """자연어 요청에 대한 맞춤형 설명 생성"""
         try:
             # 추천 결과 요약 생성
             summary = self._create_recommendation_summary(recommendations)
             preference_summary = self._create_preference_summary(preferences)
             
-            response = openai.ChatCompletion.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": """당신은 친근하고 재미있는 키보드 덕후입니다! 
+            # 기본 시스템 프롬프트 또는 사용자 정의 프롬프트 사용
+            if system_prompt is None:
+                system_prompt = """당신은 친근하고 재미있는 키보드 덕후입니다! 
                         사용자의 자연어 요청에 대해 추천된 키보드 부품들을 마치 친구에게 말하듯이 설명해주세요.
                         
                         말투 가이드:
-                        - "~해요", "~네요", "~거든요" 같은 친근한 말투 사용
+                        - "~해요", "~네요", "~거든요"같은 친근한 말투 사용
                         - "와!", "정말!", "완전" 같은 감탄사 자주 사용
                         - 전문용어는 쉽게 풀어서 설명
                         - 개인적인 경험담이나 팁도 섞어서 설명
@@ -307,6 +304,13 @@ class AIRecommender:
                         5. 마무리 격려와 추가 도움 제안
                         
                         반드시 한국어로 답변하고, 구어체로 친근하게 작성해주세요!"""
+            
+            response = openai.ChatCompletion.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt
                     },
                     {
                         "role": "user",

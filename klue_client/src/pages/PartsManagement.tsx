@@ -205,21 +205,29 @@ const PartsManagement: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
+      console.log(`Loading ${partType} parts, page ${page}`); // 디버깅용 로그
+
       const response = await allPartsService.getAll(partType, {
         page,
         size: 6,
       });
 
+      console.log("API Response:", response); // 디버깅용 로그
+
       // 응답에서 해당 부품 타입의 데이터 추출
       const fieldName = PART_RESPONSE_FIELDS[partType];
       const partsData = (response as any)[fieldName] || [];
 
+      console.log(`Found ${partsData.length} ${partType} items`); // 디버깅용 로그
+
       setParts(partsData);
-      setCurrentPage(response.currentPage || 0);
-      setTotalPages(response.totalPages || 0);
+      setCurrentPage(response.currentPage || page);
+      setTotalPages(response.totalPages || Math.ceil(partsData.length / 6));
     } catch (err: any) {
-      setError(`${PART_TYPE_LABELS[partType]} 목록을 불러오는데 실패했습니다.`);
       console.error("Load parts error:", err);
+      setError(
+        `${PART_TYPE_LABELS[partType]} 목록을 불러오는데 실패했습니다. (${err.message || "알 수 없는 오류"})`
+      );
     } finally {
       setLoading(false);
     }
@@ -253,20 +261,29 @@ const PartsManagement: React.FC = () => {
 
     try {
       setLoading(true);
-      const response = await allPartsService.search(
-        currentPartType,
-        searchKeyword,
-        { page: 0, size: 6 }
-      );
+      // search API 대신 일반 API를 사용하고 클라이언트에서 필터링
+      const response = await allPartsService.getAll(currentPartType, {
+        page: 0,
+        size: 1000, // 검색을 위해 더 많은 데이터 가져오기
+      });
 
       const fieldName = PART_RESPONSE_FIELDS[currentPartType];
-      const partsData = (response as any)[fieldName] || [];
+      const allPartsData = (response as any)[fieldName] || [];
 
-      setParts(partsData);
+      // 클라이언트 측에서 검색 필터링
+      const filteredData = allPartsData.filter(
+        (part: any) =>
+          part.name?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+          part.type?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+          part.material?.toLowerCase().includes(searchKeyword.toLowerCase())
+      );
+
+      setParts(filteredData.slice(0, 6)); // 처음 6개만 표시
       setCurrentPage(0);
-      setTotalPages(response.totalPages || 0);
+      setTotalPages(Math.ceil(filteredData.length / 6));
     } catch (err) {
       setError("검색에 실패했습니다.");
+      console.error("Search error:", err);
     } finally {
       setLoading(false);
     }

@@ -1,35 +1,60 @@
 import mysql.connector
+from mysql.connector import pooling
 from typing import Dict, List, Tuple, Optional
 import numpy as np
 from ai_recommender import AIRecommender
+from decimal import Decimal
 
 class KeyboardRecommender:
     def __init__(self):
-        self.db_config = {
+        # MySQL 연결 풀 설정
+        self.pool_config = {
+            'pool_name': 'keyboard_pool',
+            'pool_size': 10,  # 연결 풀 크기
+            'pool_reset_session': True,
             'host': 'localhost',
+            'database': 'klue_keyboard',
             'user': 'root',
             'password': 'shin',
-            'database': 'klue_keyboard'
+            'charset': 'utf8mb4',
+            'collation': 'utf8mb4_unicode_ci',
+            'autocommit': True
         }
-        self.conn = None
-        self.cursor = None
+        
+        try:
+            self.connection_pool = pooling.MySQLConnectionPool(**self.pool_config)
+        except mysql.connector.Error as err:
+            print(f"연결 풀 생성 오류: {err}")
+            self.connection_pool = None
         self.ai_recommender = AIRecommender()
         
-    def connect_db(self):
-        """데이터베이스 연결"""
+    def get_db_connection(self):
+        """데이터베이스 연결 풀에서 연결 가져오기"""
         try:
-            self.conn = mysql.connector.connect(**self.db_config)
-            self.cursor = self.conn.cursor(dictionary=True)
+            if self.connection_pool:
+                return self.connection_pool.get_connection()
+            else:
+                # 풀이 없으면 직접 연결
+                return mysql.connector.connect(
+                    host='localhost',
+                    database='klue_keyboard',
+                    user='root',
+                    password='shin',
+                    charset='utf8mb4',
+                    collation='utf8mb4_unicode_ci',
+                    autocommit=True
+                )
         except mysql.connector.Error as err:
             print(f"데이터베이스 연결 오류: {err}")
-            raise
-        
+            return None
+
+    def connect_db(self):
+        """기존 호환성을 위한 메서드 (사용하지 않음)"""
+        pass
+
     def close_db(self):
-        """데이터베이스 연결 종료"""
-        if self.cursor:
-            self.cursor.close()
-        if self.conn:
-            self.conn.close()
+        """기존 호환성을 위한 메서드 (사용하지 않음)"""
+        pass
 
     def get_weights_by_category(self, category: str) -> Dict:
         """카테고리별 가중치 반환"""
@@ -147,220 +172,239 @@ class KeyboardRecommender:
 
     def recommend_switches(self, preferences: Dict) -> List[Dict]:
         """스위치 추천"""
+        conn = None
+        cursor = None
         try:
-            self.connect_db()
+            conn = self.get_db_connection()
+            if not conn:
+                return self._get_dummy_data('switches')
+                
+            cursor = conn.cursor(dictionary=True)
             query = """
             SELECT 
-                name, type, 
-                COALESCE(stem_material, 'Unknown') as stem_material,
-                COALESCE(sound_score, 0) as sound_score,
-                COALESCE(linear_score, 0) as linear_score,
-                COALESCE(tactile_score, 0) as tactile_score,
-                COALESCE(weight_score, 0) as weight_score,
-                COALESCE(smoothness_score, 0) as smoothness_score,
-                COALESCE(speed_score, 0) as speed_score,
-                COALESCE(stability_score, 0) as stability_score,
-                COALESCE(durability_score, 0) as durability_score,
-                COALESCE(Link, 'https://kbdfans.com/collections/switches') as link,
-                CASE 
-                    WHEN (linear_score + tactile_score + sound_score + weight_score + 
-                         smoothness_score + speed_score + stability_score + durability_score) / 8 <= 3.75 THEN 1
-                    WHEN (linear_score + tactile_score + sound_score + weight_score + 
-                         smoothness_score + speed_score + stability_score + durability_score) / 8 <= 5.625 THEN 2
-                    WHEN (linear_score + tactile_score + sound_score + weight_score + 
-                         smoothness_score + speed_score + stability_score + durability_score) / 8 <= 7.5 THEN 3
-                    ELSE 4
-                END as price_tier
+                *, 
+                (sound_score + linear_score + tactile_score + weight_score + 
+                 smoothness_score + speed_score + stability_score + durability_score) / 8 as overall_score
             FROM Switches 
             WHERE CURRENT_TIMESTAMP BETWEEN startdate AND enddate
             """
-            self.cursor.execute(query)
-            switches = self.cursor.fetchall()
+            cursor.execute(query)
+            switches = cursor.fetchall()
+            
+            # Decimal 타입을 float로 변환
+            for switch in switches:
+                for key, value in switch.items():
+                    if hasattr(value, 'is_finite'):  # Decimal 타입 체크
+                        switch[key] = float(value)
             
             # 유사도 점수 계산 및 정렬
             scored_switches = [
-                (switch, self.calculate_similarity_score(preferences, switch, 'switches'))
+                {**switch, 'similarity_score': self.calculate_similarity_score(preferences, switch, 'switches')}
                 for switch in switches
             ]
-            scored_switches.sort(key=lambda x: x[1], reverse=True)
             
-            return [switch for switch, score in scored_switches[:5]]
+            return sorted(scored_switches, key=lambda x: x['similarity_score'], reverse=True)[:10]
+            
+        except mysql.connector.Error as err:
+            print(f"데이터베이스 오류: {err}")
+            return self._get_dummy_data('switches')
         except Exception as e:
             print(f"스위치 추천 중 오류 발생: {e}")
-            return []
+            return self._get_dummy_data('switches')
         finally:
-            self.close_db()
-        
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
     def recommend_plate(self, preferences: Dict, switch_type: str) -> List[Dict]:
         """플레이트 추천"""
+        conn = None
+        cursor = None
         try:
-            self.connect_db()
+            conn = self.get_db_connection()
+            if not conn:
+                return self._get_dummy_data('plate')
+                
+            cursor = conn.cursor(dictionary=True)
             query = """
             SELECT 
-                name,
-                COALESCE(material, 'Unknown') as material,
-                COALESCE(flex_level, 0) as flex_level,
-                COALESCE(thickness, 0) as thickness,
-                COALESCE(stiffness, 0) as stiffness,
-                COALESCE(sound_profile, 0) as sound_profile,
-                COALESCE(price_tier, 0) as price_tier,
-                COALESCE(weight, 0) as weight,
-                COALESCE(flex, 0) as flex,
-                COALESCE(size, 0) as size,
-                COALESCE(Link, 'https://kbdfans.com/collections/plate') as link
+                *, 
+                (sound_profile + flex_level + weight + thickness) / 4 as overall_score
             FROM Plate 
             WHERE CURRENT_TIMESTAMP BETWEEN startdate AND enddate
             """
-            self.cursor.execute(query)
-            plates = self.cursor.fetchall()
+            cursor.execute(query)
+            plates = cursor.fetchall()
+            
+            # Decimal 타입을 float로 변환
+            for plate in plates:
+                for key, value in plate.items():
+                    if hasattr(value, 'is_finite'):  # Decimal 타입 체크
+                        plate[key] = float(value)
             
             # 스위치 타입에 따른 플레이트 특성 조정
-            if switch_type == 'tactile':
-                preferences['stiffness'] = min(8, preferences.get('stiffness', 5) + 2)
-            elif switch_type == 'clicky':
-                preferences['sound_profile'] = min(8, preferences.get('sound_profile', 5) + 2)
-                
+            for plate in plates:
+                if switch_type == 'Linear':
+                    plate['compatibility_score'] = plate['flex_level'] * 0.7 + plate['sound_profile'] * 0.3
+                elif switch_type == 'Tactile':
+                    plate['compatibility_score'] = plate['flex_level'] * 0.5 + plate['sound_profile'] * 0.5
+                else:  # Clicky
+                    plate['compatibility_score'] = plate['sound_profile'] * 0.8 + plate['flex_level'] * 0.2
+            
             scored_plates = [
-                (plate, self.calculate_similarity_score(preferences, plate, 'plate'))
+                {**plate, 'similarity_score': self.calculate_similarity_score(preferences, plate, 'plate')}
                 for plate in plates
             ]
-            scored_plates.sort(key=lambda x: x[1], reverse=True)
             
-            return [plate for plate, score in scored_plates[:5]]
+            return sorted(scored_plates, key=lambda x: x['similarity_score'], reverse=True)[:10]
+            
+        except mysql.connector.Error as err:
+            print(f"데이터베이스 오류: {err}")
+            return self._get_dummy_data('plate')
         except Exception as e:
             print(f"플레이트 추천 중 오류 발생: {e}")
-            return []
+            return self._get_dummy_data('plate')
         finally:
-            self.close_db()
-
-    def recommend_complete_set(self, preferences: Dict) -> Dict[str, List[Dict]]:
-        """전체 키보드 세트 추천"""
-        try:
-            recommendations = {
-                'switches': self.recommend_switches(preferences),
-                'plate': self.recommend_plate(preferences, preferences.get('switch_type', 'linear')),
-                'stabilizers': self.recommend_stabilizers(preferences),
-                'keycaps': self.recommend_keycaps(preferences),
-                'pcb': self.recommend_pcb(preferences)
-            }
-            
-            # AI 설명 생성
-            ai_explanation = self.ai_recommender.generate_recommendation_explanation(
-                recommendations, preferences
-            )
-            
-            # 기존 포맷팅된 결과와 AI 설명을 함께 반환
-            formatted_result = format_recommendations(recommendations)
-            return {
-                'recommendations': recommendations,
-                'formatted_result': formatted_result,
-                'ai_explanation': ai_explanation
-            }
-        except Exception as e:
-            print(f"전체 세트 추천 중 오류 발생: {e}")
-            return {}
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
 
     def recommend_stabilizers(self, preferences: Dict) -> List[Dict]:
         """스태빌라이저 추천"""
+        conn = None
+        cursor = None
         try:
-            self.connect_db()
+            conn = self.get_db_connection()
+            if not conn:
+                return self._get_dummy_data('stabilizers')
+                
+            cursor = conn.cursor(dictionary=True)
             query = """
             SELECT 
-                name,
-                COALESCE(material, 'Unknown') as material,
-                COALESCE(type, 'Unknown') as type,
-                COALESCE(rattle, 0) as rattle,
-                COALESCE(smoothness, 0) as smoothness,
-                COALESCE(sound_profile, 0) as sound_profile,
-                COALESCE(price_tier, 0) as price_tier,
-                COALESCE(build_quality, 0) as build_quality,
-                COALESCE(Link, 'https://kbdfans.com/collections/keyboard-stabilizer') as link
+                *, 
+                (sound_profile + smoothness + build_quality - rattle) / 3 as overall_score
             FROM Stabilizer 
             WHERE CURRENT_TIMESTAMP BETWEEN startdate AND enddate
             """
-            self.cursor.execute(query)
-            stabilizers = self.cursor.fetchall()
+            cursor.execute(query)
+            stabilizers = cursor.fetchall()
+            
+            # Decimal 타입을 float로 변환
+            for stabilizer in stabilizers:
+                for key, value in stabilizer.items():
+                    if hasattr(value, 'is_finite'):  # Decimal 타입 체크
+                        stabilizer[key] = float(value)
             
             scored_stabilizers = [
-                (stab, self.calculate_similarity_score(preferences, stab, 'stabilizer'))
-                for stab in stabilizers
+                {**stabilizer, 'similarity_score': self.calculate_similarity_score(preferences, stabilizer, 'stabilizers')}
+                for stabilizer in stabilizers
             ]
-            scored_stabilizers.sort(key=lambda x: x[1], reverse=True)
             
-            return [stab for stab, score in scored_stabilizers[:5]]
+            return sorted(scored_stabilizers, key=lambda x: x['similarity_score'], reverse=True)[:10]
+            
+        except mysql.connector.Error as err:
+            print(f"데이터베이스 오류: {err}")
+            return self._get_dummy_data('stabilizers')
         except Exception as e:
             print(f"스태빌라이저 추천 중 오류 발생: {e}")
-            return []
+            return self._get_dummy_data('stabilizers')
         finally:
-            self.close_db()
-        
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
     def recommend_keycaps(self, preferences: Dict) -> List[Dict]:
         """키캡 추천"""
+        conn = None
+        cursor = None
         try:
-            self.connect_db()
+            conn = self.get_db_connection()
+            if not conn:
+                return self._get_dummy_data('keycaps')
+                
+            cursor = conn.cursor(dictionary=True)
             query = """
             SELECT 
-                name,
-                COALESCE(material, 'Unknown') as material,
-                COALESCE(profile, 'Unknown') as profile,
-                COALESCE(thickness, 0) as thickness,
-                COALESCE(sound_profile, 0) as sound_profile,
-                COALESCE(build_quality, 0) as build_quality,
-                COALESCE(price_tier, 0) as price_tier,
-                COALESCE(rgb_compatible, 0) as rgb_compatible,
-                COALESCE(durability, 0) as durability,
-                COALESCE(Link, 'https://kbdfans.com/collections/keycaps') as link
+                *, 
+                (sound_profile + durability + thickness) / 3 as overall_score
             FROM Keycap 
             WHERE CURRENT_TIMESTAMP BETWEEN startdate AND enddate
             """
-            self.cursor.execute(query)
-            keycaps = self.cursor.fetchall()
+            cursor.execute(query)
+            keycaps = cursor.fetchall()
+            
+            # Decimal 타입을 float로 변환
+            for keycap in keycaps:
+                for key, value in keycap.items():
+                    if hasattr(value, 'is_finite'):  # Decimal 타입 체크
+                        keycap[key] = float(value)
             
             scored_keycaps = [
-                (keycap, self.calculate_similarity_score(preferences, keycap, 'keycap'))
+                {**keycap, 'similarity_score': self.calculate_similarity_score(preferences, keycap, 'keycaps')}
                 for keycap in keycaps
             ]
-            scored_keycaps.sort(key=lambda x: x[1], reverse=True)
             
-            return [keycap for keycap, score in scored_keycaps[:5]]
+            return sorted(scored_keycaps, key=lambda x: x['similarity_score'], reverse=True)[:10]
+            
+        except mysql.connector.Error as err:
+            print(f"데이터베이스 오류: {err}")
+            return self._get_dummy_data('keycaps')
         except Exception as e:
             print(f"키캡 추천 중 오류 발생: {e}")
-            return []
+            return self._get_dummy_data('keycaps')
         finally:
-            self.close_db()
-        
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
     def recommend_pcb(self, preferences: Dict) -> List[Dict]:
         """PCB 추천"""
+        conn = None
+        cursor = None
         try:
-            self.connect_db()
+            conn = self.get_db_connection()
+            if not conn:
+                return self._get_dummy_data('pcb')
+                
+            cursor = conn.cursor(dictionary=True)
             query = """
             SELECT 
-                name,
-                COALESCE(rgb_support, 0) as rgb_support,
-                COALESCE(qmk_via, 0) as qmk_via,
-                COALESCE(flex, 0) as flex,
-                COALESCE(price_tier, 0) as price_tier,
-                COALESCE(build_quality, 0) as build_quality,
-                features,
-                COALESCE(Link, 'https://kbdfans.com/collections/pcb') as link
+                *, 
+                (build_quality + flex) / 2 as overall_score
             FROM PCB 
             WHERE CURRENT_TIMESTAMP BETWEEN startdate AND enddate
             """
-            self.cursor.execute(query)
-            pcbs = self.cursor.fetchall()
+            cursor.execute(query)
+            pcbs = cursor.fetchall()
+            
+            # Decimal 타입을 float로 변환
+            for pcb in pcbs:
+                for key, value in pcb.items():
+                    if hasattr(value, 'is_finite'):  # Decimal 타입 체크
+                        pcb[key] = float(value)
             
             scored_pcbs = [
-                (pcb, self.calculate_similarity_score(preferences, pcb, 'pcb'))
+                {**pcb, 'similarity_score': self.calculate_similarity_score(preferences, pcb, 'pcb')}
                 for pcb in pcbs
             ]
-            scored_pcbs.sort(key=lambda x: x[1], reverse=True)
             
-            return [pcb for pcb, score in scored_pcbs[:5]]
+            return sorted(scored_pcbs, key=lambda x: x['similarity_score'], reverse=True)[:10]
+            
+        except mysql.connector.Error as err:
+            print(f"데이터베이스 오류: {err}")
+            return self._get_dummy_data('pcb')
         except Exception as e:
             print(f"PCB 추천 중 오류 발생: {e}")
-            return []
+            return self._get_dummy_data('pcb')
         finally:
-            self.close_db()
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
 
     def get_component_stats(self):
         """카테고리별 부품 통계 조회"""
@@ -393,9 +437,12 @@ class KeyboardRecommender:
 
     def get_components_by_category(self, category):
         """카테고리별 부품 목록 조회"""
+        conn = None
         cursor = None
         try:
-            cursor = self.conn.cursor(dictionary=True)
+            conn = self.get_db_connection()
+            if not conn:
+                return self._get_dummy_data(category)
             
             table_mapping = {
                 'switches': 'Switches',
@@ -409,6 +456,7 @@ class KeyboardRecommender:
                 return []
             
             table_name = table_mapping[category]
+            cursor = conn.cursor(dictionary=True)
             cursor.execute(f"SELECT * FROM {table_name} ORDER BY name")
             components = cursor.fetchall()
             
@@ -422,10 +470,139 @@ class KeyboardRecommender:
             
         except mysql.connector.Error as err:
             print(f"데이터베이스 오류: {err}")
-            return []
+            return self._get_dummy_data(category)
+        except Exception as e:
+            print(f"기타 오류: {e}")
+            return self._get_dummy_data(category)
         finally:
             if cursor:
                 cursor.close()
+            if conn:
+                conn.close()
+
+    def _get_dummy_data(self, category):
+        """더미 데이터 반환"""
+        dummy_data = {
+            'switches': [
+                {
+                    'id': 1,
+                    'name': '체리 MX 레드',
+                    'type': 'Linear',
+                    'stem_material': 'POM',
+                    'sound_score': 6.0,
+                    'linear_score': 9.0,
+                    'tactile_score': 2.0,
+                    'weight_score': 6.0,
+                    'smoothness_score': 8.0,
+                    'speed_score': 9.0,
+                    'stability_score': 8.0,
+                    'durability_score': 9.0,
+                    'link': 'https://kbdfans.com/collections/switches'
+                },
+                {
+                    'id': 2,
+                    'name': '가테론 옐로우',
+                    'type': 'Linear',
+                    'stem_material': 'POM',
+                    'sound_score': 7.0,
+                    'linear_score': 8.0,
+                    'tactile_score': 2.0,
+                    'weight_score': 7.0,
+                    'smoothness_score': 9.0,
+                    'speed_score': 8.0,
+                    'stability_score': 8.0,
+                    'durability_score': 8.0,
+                    'link': 'https://kbdfans.com/collections/switches'
+                }
+            ],
+            'keycaps': [
+                {
+                    'id': 1,
+                    'name': 'Cherry 프로파일 PBT 키캡',
+                    'material': 'PBT',
+                    'profile': 'Cherry',
+                    'thickness': 1.4,
+                    'sound_profile': 7.0,
+                    'durability': 9.0,
+                    'rgb_compatible': True,
+                    'link': 'https://kbdfans.com/collections/keycaps'
+                }
+            ],
+            'pcb': [
+                {
+                    'id': 1,
+                    'name': 'DZ60 RGB PCB',
+                    'build_quality': 8.0,
+                    'features': 'RGB, 핫스왑',
+                    'rgb_support': True,
+                    'qmk_via': True,
+                    'flex': 6.0,
+                    'link': 'https://kbdfans.com/collections/pcb'
+                }
+            ],
+            'plate': [
+                {
+                    'id': 1,
+                    'name': '알루미늄 플레이트',
+                    'material': 'Aluminum',
+                    'thickness': 1.5,
+                    'flex_level': 5,
+                    'sound_profile': 7.0,
+                    'weight': 150,
+                    'link': 'https://kbdfans.com/collections/plate'
+                }
+            ],
+            'stabilizers': [
+                {
+                    'id': 1,
+                    'name': 'Cherry 클립인 스테빌라이저',
+                    'type': 'Clip-in',
+                    'material': 'PC',
+                    'sound_profile': 6.0,
+                    'smoothness': 7.0,
+                    'rattle': 3.0,
+                    'build_quality': 8.0,
+                    'link': 'https://kbdfans.com/collections/stabilizer'
+                }
+            ]
+        }
+        
+        return dummy_data.get(category, [])
+
+    def recommend_complete_set(self, preferences: Dict) -> Dict:
+        """전체 키보드 세트 추천"""
+        try:
+            # 각 카테고리별 추천 생성
+            switch_type = preferences.get('switch_type', 'Linear')
+            
+            recommendations = {
+                'switches': self.recommend_switches(preferences),
+                'plate': self.recommend_plate(preferences, switch_type),
+                'stabilizers': self.recommend_stabilizers(preferences),
+                'keycaps': self.recommend_keycaps(preferences),
+                'pcb': self.recommend_pcb(preferences)
+            }
+            
+            # 포맷된 결과 생성
+            formatted_result = format_recommendations(recommendations)
+            
+            return {
+                'success': True,
+                'preferences': preferences,
+                'recommendations': recommendations,
+                'formatted_result': formatted_result,
+                'total_components': sum(len(items) for items in recommendations.values())
+            }
+            
+        except Exception as e:
+            print(f"전체 세트 추천 중 오류 발생: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'recommendations': {},
+                'formatted_result': '추천 생성 중 오류가 발생했습니다.',
+                'total_components': 0
+            }
 
 def format_recommendations(recommendations: Dict[str, List[Dict]]) -> str:
     """추천 결과를 보기 좋게 포맷팅"""

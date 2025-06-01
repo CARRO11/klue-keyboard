@@ -48,6 +48,10 @@ const KeyboardRecommendation: React.FC = () => {
   const [showNaturalInput, setShowNaturalInput] = useState(true); // 기본값을 자연어 입력으로
   const [userRequest, setUserRequest] = useState<string>("");
 
+  // 기본 시스템 프롬프트 (UI 없이 백그라운드에서만 사용)
+  const systemPrompt =
+    "당신은 키보드 전문가 Tony입니다. 친근하고 전문적인 톤으로 사용자에게 맞는 키보드를 추천해주세요. 각 부품의 특성과 장단점을 자세히 설명하고, 사용자의 용도에 맞는 이유를 명확히 제시해주세요.";
+
   const handlePreferenceChange = (key: keyof Preferences, value: any) => {
     setPreferences((prev) => ({
       ...prev,
@@ -58,7 +62,7 @@ const KeyboardRecommendation: React.FC = () => {
   const getRecommendations = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5002/api/recommend", {
+      const response = await fetch("http://localhost:8080/api/recommend", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -94,13 +98,16 @@ const KeyboardRecommendation: React.FC = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "http://localhost:5002/api/recommend/natural",
+        "http://localhost:8080/api/recommend/natural",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ message: naturalLanguageInput }),
+          body: JSON.stringify({
+            message: naturalLanguageInput,
+            systemPrompt: systemPrompt,
+          }),
         }
       );
 
@@ -177,15 +184,12 @@ const KeyboardRecommendation: React.FC = () => {
   return (
     <div className="keyboard-recommendation">
       <div className="container">
-        <h1>🎯 키보드 부품 추천 시스템</h1>
-        <p className="intro-text">
-          안녕하세요! 키보드 전문가 Tony입니다 🎩 어떤 키보드를 찾고 계신가요?
-        </p>
+        <h1>🎩 키보드 소믈리에 tony</h1>
 
         {/* 자연어 입력 섹션 */}
         <div className="natural-language-section">
           <div className="header-section">
-            <h2 className="sommelier-title">🍷 키보드 소믈리에 Tony</h2>
+            <h2 className="section-title">어떤 키보드가 필요하신가요?</h2>
             <button
               onClick={() => setShowNaturalInput(false)}
               className={`settings-icon ${!showNaturalInput ? "active" : ""}`}

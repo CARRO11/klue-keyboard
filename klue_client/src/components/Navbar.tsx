@@ -25,7 +25,9 @@ const MenuContainer = styled.div`
   gap: 2rem;
 `;
 
-const MenuItem = styled(Link)<{ $isActive: boolean }>`
+const MenuItem = styled(Link, {
+  shouldForwardProp: (prop) => prop !== "$isActive",
+})<{ $isActive: boolean }>`
   text-decoration: none;
   color: ${(props) => (props.$isActive ? "#ffd700" : "#fff")};
   font-weight: ${(props) => (props.$isActive ? "600" : "400")};
@@ -72,9 +74,6 @@ const Navbar = () => {
         <span>/</span> KLUE
       </Logo>
       <MenuContainer>
-        <MenuItem to="/list" $isActive={location.pathname.startsWith("/list")}>
-          List
-        </MenuItem>
         <MenuItem
           to="/new-product"
           $isActive={location.pathname === "/new-product"}
