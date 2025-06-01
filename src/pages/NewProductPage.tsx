@@ -1,138 +1,237 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 
 const PageContainer = styled.div`
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  background-color: #f5f5f5;
+  min-height: 100vh;
 `;
 
-const Title = styled.h1`
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-  color: #333;
+const FilterContainer = styled.div`
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: flex-end;
 `;
 
-const ProductGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
+const FilterSelect = styled.select`
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.9rem;
 `;
 
-const ProductCard = styled.div`
-  background: white;
-  border-radius: 12px;
+const TableContainer = styled.div`
+  background-color: white;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease-in-out;
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+const TableHeader = styled.thead`
+  background-color: #f8f9fa;
+`;
+
+const TableRow = styled.tr`
+  border-bottom: 1px solid #e9ecef;
 
   &:hover {
-    transform: translateY(-4px);
+    background-color: #f8f9fa;
   }
 `;
 
-const ProductImage = styled.div`
-  width: 100%;
-  height: 200px;
-  background-color: #f5f5f5;
-  position: relative;
-  overflow: hidden;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const ProductInfo = styled.div`
-  padding: 1.5rem;
-`;
-
-const ProductName = styled.h3`
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-  color: #333;
-`;
-
-const ProductDescription = styled.p`
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 1rem;
-`;
-
-const PriceTag = styled.div`
-  font-size: 1.1rem;
+const TableHeaderCell = styled.th`
+  padding: 1rem;
+  text-align: center;
   font-weight: 600;
   color: #333;
+  border-bottom: 2px solid #dee2e6;
 `;
 
-const Badge = styled.span`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background-color: #ff4444;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
+const TableCell = styled.td`
+  padding: 1rem;
+  text-align: center;
+  color: #555;
+  vertical-align: middle;
+`;
+
+const ProductName = styled.span`
+  font-weight: 500;
+  color: #333;
+`;
+
+const CategoryBadge = styled.span`
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
   font-weight: 500;
 `;
 
+const ProductLink = styled.a`
+  color: #1976d2;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const RemarksCell = styled.td`
+  padding: 1rem;
+  text-align: center;
+  color: #555;
+  vertical-align: middle;
+  position: relative;
+`;
+
+const HeartButton = styled.div`
+  width: 30px;
+  height: 30px;
+  background-color: #ff4081;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  cursor: pointer;
+  color: white;
+  font-size: 1rem;
+
+  &:hover {
+    background-color: #e91e63;
+  }
+`;
+
 const NewProductPage = () => {
+  const [filter, setFilter] = useState("발매일 순");
+
   const products = [
     {
       id: 1,
-      name: "KLUE K1 Keyboard",
-      description: "프리미엄 알루미늄 커스텀 키보드",
-      price: "₩259,000",
-      image: "https://via.placeholder.com/280x200",
-      isNew: true,
+      name: "Meltrix Zoom75 V2",
+      releaseDate: "2025-06",
+      category: "케이스",
+      link: "https://funkeys.co.kr/products/zoom75-v2",
+      hasHeart: true,
     },
     {
       id: 2,
-      name: "KLUE Switch Pro",
-      description: "부드러운 타격감의 리니어 스위치",
-      price: "₩89,000",
-      image: "https://via.placeholder.com/280x200",
-      isNew: true,
+      name: "Mode Envoy 2025 Edition",
+      releaseDate: "2025-06",
+      category: "케이스",
+      link: "https://funkeys.co.kr/products/zoom75-v2",
+      hasHeart: false,
     },
     {
       id: 3,
-      name: "KLUE Keycap Set",
-      description: "PBT 소재의 프리미엄 키캡",
-      price: "₩129,000",
-      image: "https://via.placeholder.com/280x200",
-      isNew: true,
+      name: "Owlab Link65",
+      releaseDate: "2025-06",
+      category: "케이스",
+      link: "https://owlab.store/products/link65",
+      hasHeart: false,
     },
     {
       id: 4,
-      name: "KLUE Stabilizer",
-      description: "고급 스테빌라이저 세트",
-      price: "₩39,000",
-      image: "https://via.placeholder.com/280x200",
-      isNew: true,
+      name: "Gateron KS-20 Lunar Gray",
+      releaseDate: "2025-06",
+      category: "스위치",
+      link: "https://epomaker.com/products/ks20-lunar",
+      hasHeart: false,
+    },
+    {
+      id: 5,
+      name: "Aluminum Plate",
+      releaseDate: "2025-06",
+      category: "보강판",
+      link: "https://owlab.store/products/link65-plate",
+      hasHeart: false,
+    },
+    {
+      id: 6,
+      name: "WT65-G Hotswap PCB",
+      releaseDate: "2025-07",
+      category: "기판",
+      link: "https://geon.works/products/wt65g-pcb",
+      hasHeart: false,
+    },
+    {
+      id: 7,
+      name: "Owlstabs V3",
+      releaseDate: "2025-07",
+      category: "스태빌라이저",
+      link: "https://owlab.store/products/owlstabs-v3",
+      hasHeart: false,
+    },
+    {
+      id: 8,
+      name: "PE Foam for Mode Envoy",
+      releaseDate: "2025-07",
+      category: "완충재",
+      link: "https://modedesigns.com/products/envoy-pe-foamh",
+      hasHeart: false,
     },
   ];
 
   return (
     <PageContainer>
-      <Title>New Products</Title>
-      <ProductGrid>
-        {products.map((product) => (
-          <ProductCard key={product.id}>
-            <ProductImage>
-              <img src={product.image} alt={product.name} />
-              {product.isNew && <Badge>NEW</Badge>}
-            </ProductImage>
-            <ProductInfo>
-              <ProductName>{product.name}</ProductName>
-              <ProductDescription>{product.description}</ProductDescription>
-              <PriceTag>{product.price}</PriceTag>
-            </ProductInfo>
-          </ProductCard>
-        ))}
-      </ProductGrid>
+      <FilterContainer>
+        <FilterSelect
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+        >
+          <option>발매일 순</option>
+          <option>이름 순</option>
+          <option>카테고리 순</option>
+        </FilterSelect>
+      </FilterContainer>
+
+      <TableContainer>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHeaderCell>상품명</TableHeaderCell>
+              <TableHeaderCell>발매일</TableHeaderCell>
+              <TableHeaderCell>부품 종류</TableHeaderCell>
+              <TableHeaderCell>Link</TableHeaderCell>
+              <TableHeaderCell>비고란</TableHeaderCell>
+            </TableRow>
+          </TableHeader>
+          <tbody>
+            {products.map((product) => (
+              <TableRow key={product.id}>
+                <TableCell>
+                  <ProductName>{product.name}</ProductName>
+                </TableCell>
+                <TableCell>{product.releaseDate}</TableCell>
+                <TableCell>
+                  <CategoryBadge>{product.category}</CategoryBadge>
+                </TableCell>
+                <TableCell>
+                  <ProductLink
+                    href={product.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {product.link}
+                  </ProductLink>
+                </TableCell>
+                <RemarksCell>
+                  {product.hasHeart && <HeartButton>♥</HeartButton>}
+                </RemarksCell>
+              </TableRow>
+            ))}
+          </tbody>
+        </Table>
+      </TableContainer>
     </PageContainer>
   );
 };

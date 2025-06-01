@@ -47,46 +47,114 @@ KLUE 키보드 부품 추천 시스템은 AI 기반 자연어 처리를 통해 �
 
 ## 🚀 설치 및 실행
 
-### 1. 환경 설정
+## ⚡ 빠른 시작
+
+### 1. 프로젝트 클론
 
 ```bash
-# 저장소 클론
-git clone <repository-url>
-cd klue_project
-
-# Python 패키지 설치
-pip install -r requirements.txt
-
-# 환경 변수 설정 (.env 파일 생성)
-OPENAI_API_KEY=sk-proj-실제발급받은키여기에입력
-MYSQL_HOST=localhost
-MYSQL_USER=root
-MYSQL_PASSWORD=your_password
-MYSQL_DATABASE=klue_keyboard
+git clone https://github.com/CARRO11/klue-keyboard.git
+cd klue-keyboard
 ```
 
-### 2. 데이터베이스 설정
+### 2. OpenAI API 키 설정 (필수!)
+
+**⚠️ 중요: AI 추천 기능(Tony)을 사용하려면 OpenAI API 키가 필요합니다.**
+
+#### 방법 1: 템플릿 파일 사용 (권장)
 
 ```bash
-# MySQL 데이터베이스 생성 및 데이터 삽입
-mysql -u root -p < migrate_to_mysql.sql
-mysql -u root -p klue_keyboard < update_missing_data.sql
-mysql -u root -p klue_keyboard < update_exact_links.sql
+# 템플릿 파일을 복사
+cp klueai.env.template klueai.env
+
+# 텍스트 에디터로 파일 열기
+nano klueai.env
+# 또는
+code klueai.env
 ```
 
-### 3. 서버 실행
+#### 방법 2: 직접 생성
 
 ```bash
-# Flask API 서버 실행
-python3 app.py
-# 서버: http://localhost:5002
+# 새 파일 생성
+echo "OPENAI_API_KEY=sk-proj-여기에-실제-키-입력" > klueai.env
+echo "DB_HOST=localhost" >> klueai.env
+echo "DB_USER=root" >> klueai.env
+echo "DB_PASSWORD=shin" >> klueai.env
+echo "DB_NAME=klue_keyboard" >> klueai.env
+```
 
-# React 클라이언트 실행 (별도 터미널)
+#### API 키 발급 방법:
+
+1. [OpenAI 플랫폼](https://platform.openai.com/api-keys)에서 계정 생성
+2. API 키 생성 (유료 계정 필요)
+3. `klueai.env` 파일에서 다음 라인 수정:
+
+   ```
+   # 수정 전
+   OPENAI_API_KEY=sk-proj-여기에-실제-키-입력
+
+   # 수정 후 (실제 키로 교체)
+   OPENAI_API_KEY=sk-proj-실제발급받은키여기에입력
+   ```
+
+### 3. 데이터베이스 설정
+
+```bash
+mysql -u root -p
+CREATE DATABASE klue_keyboard;
+# 제공된 SQL 파일들로 테이블 생성
+```
+
+### 4. 백엔드 실행
+
+```bash
+# Spring Boot 서버
+cd klue_sever
+./gradlew bootRun
+
+# Python AI 서버 (포트 5002) - 새 터미널에서
+python keyboard_recommender.py
+```
+
+### 5. 프론트엔드 실행
+
+```bash
 cd klue_client
 npm install
 npm start
-# 클라이언트: http://localhost:3000
 ```
+
+## 🚨 문제 해결
+
+### "AI 추천 기능이 작동하지 않아요!"
+
+- `klueai.env` 파일이 있는지 확인
+- OpenAI API 키가 올바르게 설정되었는지 확인
+- API 키에 잔액이 있는지 확인 (유료 서비스)
+
+### "Tony가 응답하지 않아요!"
+
+- Python 서버가 실행 중인지 확인 (`python keyboard_recommender.py`)
+- 포트 5002가 사용 중인지 확인
+
+## 🎯 기능별 사용 가이드
+
+### 🍷 AI 추천 (Tony)
+
+- **URL**: `http://localhost:3000/ai`
+- **요구사항**: OpenAI API 키 필수
+- **사용법**: "조용한 사무용 키보드" 같은 자연어로 요청
+
+### 🔧 Build 페이지
+
+- **URL**: `http://localhost:3000/build`
+- **요구사항**: 데이터베이스만 필요
+- **사용법**: 드롭다운에서 부품 선택
+
+### 📊 일반 기능 (List, Site 등)
+
+- **요구사항**: API 키 불필요
+- **사용법**: 바로 사용 가능
 
 ## 💻 사용 방법
 
