@@ -47,22 +47,6 @@ configurations.all {
 	}
 }
 
-// Railway 배포용 bootJar 태스크 설정
-bootJar {
-	enabled = true
-	archiveClassifier = ''
-	mainClass = 'com.example.klue_sever.KlueSeverApplication'
-}
-
-jar {
-	enabled = false
-}
-
 tasks.named('test') {
 	useJUnitPlatform()
-}
-
-// Gradle 데몬 및 메모리 설정 (Railway용)
-tasks.withType(JavaCompile) {
-	options.compilerArgs += ["-Xmx512m"]
 }
