@@ -1,0 +1,27 @@
+# Git 관련
+.git
+.gitignore
+
+# IDE 관련
+.vscode/
+.idea/
+*.iml
+
+# 로그 파일
+*.log
+*.pid
+
+# 임시 파일
+.DS_Store
+*.tmp
+
+# Node.js (프론트엔드)
+klue_client/node_modules/
+klue_client/build/
+
+# 배포 설정 파일들
+deployment/
+
+# 기타
+README.md
+*.md 

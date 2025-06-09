@@ -1,9 +1,11 @@
 [build]
-builder = "nixpacks"
-buildCommand = "cd klue_sever && ./gradlew clean bootJar -x test --no-daemon"
+builder = "dockerfile"
 
 [deploy]
-startCommand = "cd klue_sever && java -jar build/libs/klue_sever-0.0.1-SNAPSHOT.jar"
+healthcheckPath = "/actuator/health"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"
 
-[env]
-NIXPACKS_JDK_VERSION = "17" 
+[variables]
+JAVA_VERSION = "17"
+SPRING_PROFILES_ACTIVE = "production" 
