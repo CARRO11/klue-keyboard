@@ -22,5 +22,5 @@ COPY --from=build /app/build/libs/klue_sever-0.0.1-SNAPSHOT.jar app.jar
 # 포트 노출
 EXPOSE 8080
 
-# 애플리케이션 실행
-CMD ["java", "-jar", "app.jar"] 
+# 메모리 최적화된 애플리케이션 실행 (Railway 무료 플랜용)
+CMD ["java", "-Xmx400m", "-Xms128m", "-jar", "app.jar"] 
