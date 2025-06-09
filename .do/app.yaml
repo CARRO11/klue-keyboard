@@ -1,0 +1,23 @@
+name: klue-keyboard
+services:
+  - name: backend
+    source_dir: klue_sever
+    github:
+      repo: CARRO11/klue-keyboard
+      branch: main
+    run_command: java -jar build/libs/klue_sever-0.0.1-SNAPSHOT.jar
+    build_command: ./gradlew clean bootJar -x test --no-daemon
+    environment_slug: java
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+      - key: SERVER_PORT
+        value: "8080"
+
+databases:
+  - name: mysql-db
+    engine: MYSQL
+    version: "8"
+    size: db-s-dev-database

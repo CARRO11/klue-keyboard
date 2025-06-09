@@ -1,0 +1,11 @@
+# 매우 단순한 Spring Boot Dockerfile
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+# JAR 파일만 복사 (미리 빌드된 것)
+COPY build/libs/klue_sever-0.0.1-SNAPSHOT.jar app.jar
+
+EXPOSE 8080
+
+CMD ["java", "-jar", "app.jar"] 
