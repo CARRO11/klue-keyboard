@@ -28,7 +28,8 @@ public class Lube {
     @Column(nullable = false)
     private LocalDateTime enddate;
 
-    @OneToOne
-    @JoinColumn(name = "enddate_name_id")
-    private Lube enddateName;
+    // 자기 참조 제거 - 순환 참조 문제 해결
+    // @OneToOne
+    // @JoinColumn(name = "enddate_name_id")
+    // private Lube enddateName;
 } 

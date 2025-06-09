@@ -26,7 +26,8 @@ public class Weight {
 
     private String link;
 
-    @OneToOne
-    @JoinColumn(name = "material_link_id")
-    private Weight materialLink;
+    // 자기 참조 제거 - 순환 참조 문제 해결
+    // @OneToOne
+    // @JoinColumn(name = "material_link_id")
+    // private Weight materialLink;
 } 
