@@ -22,9 +22,5 @@ COPY --from=build /app/build/libs/klue_sever-0.0.1-SNAPSHOT.jar app.jar
 # 포트 노출
 EXPOSE 8080
 
-# 헬스체크 추가
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
-
 # 애플리케이션 실행
 CMD ["java", "-jar", "app.jar"] 
