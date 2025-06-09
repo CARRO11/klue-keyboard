@@ -202,7 +202,7 @@ const SitePage: React.FC = () => {
 
   return (
     <Container>
-      <Title>커스텀 키보드 쇼핑 사이트</Title>
+      <Title>Sites</Title>
 
       <CategoryTitle>🌍 해외 브랜드</CategoryTitle>
       <SiteGrid>

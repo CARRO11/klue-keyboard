@@ -34,8 +34,8 @@ const PartTypeSection = styled.div`
 
 const PartTypeButton = styled.button<{ active?: boolean }>`
   padding: 0.75rem 1.5rem;
-  border: 2px solid ${(props) => (props.active ? "#007bff" : "#ddd")};
-  background: ${(props) => (props.active ? "#007bff" : "white")};
+  border: 2px solid ${(props) => (props.active ? "#000" : "#ddd")};
+  background: ${(props) => (props.active ? "#000" : "white")};
   color: ${(props) => (props.active ? "white" : "#333")};
   border-radius: 8px;
   cursor: pointer;
@@ -44,8 +44,8 @@ const PartTypeButton = styled.button<{ active?: boolean }>`
   white-space: nowrap;
 
   &:hover {
-    border-color: #007bff;
-    background: ${(props) => (props.active ? "#0056b3" : "#f8f9ff")};
+    border-color: #000;
+    background: ${(props) => (props.active ? "#333" : "#f8f9ff")};
   }
 `;
 
@@ -69,7 +69,7 @@ const SearchInput = styled.input`
 
 const SearchButton = styled.button`
   padding: 0.75rem 1.5rem;
-  background: #007bff;
+  background: #000;
   color: white;
   border: none;
   border-radius: 8px;
@@ -78,7 +78,7 @@ const SearchButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background: #0056b3;
+    background: #333;
   }
 `;
 
@@ -100,7 +100,7 @@ const StatCard = styled.div`
 const StatNumber = styled.div`
   font-size: 2rem;
   font-weight: bold;
-  color: #007bff;
+  color: #ffd700;
   margin-bottom: 0.5rem;
 `;
 
@@ -146,7 +146,7 @@ const PartDetail = styled.div`
 const PartBadge = styled.span`
   display: inline-block;
   padding: 0.25rem 0.5rem;
-  background: #007bff;
+  background: #000;
   color: white;
   border-radius: 4px;
   font-size: 0.8rem;

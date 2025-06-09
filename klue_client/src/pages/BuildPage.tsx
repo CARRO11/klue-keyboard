@@ -48,7 +48,7 @@ const DropdownButton = styled.button<{ $isOpen: boolean }>`
   width: 100%;
   padding: 1rem;
   background: white;
-  border: 2px solid ${(props) => (props.$isOpen ? "#00bcd4" : "#e0e0e0")};
+  border: 2px solid ${(props) => (props.$isOpen ? "#000" : "#e0e0e0")};
   border-radius: 8px;
   display: flex;
   justify-content: space-between;
@@ -59,7 +59,7 @@ const DropdownButton = styled.button<{ $isOpen: boolean }>`
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: #00bcd4;
+    border-color: #000;
   }
 `;
 
@@ -75,7 +75,7 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   left: 0;
   right: 0;
   background: white;
-  border: 2px solid #00bcd4;
+  border: 2px solid #000;
   border-top: none;
   border-radius: 0 0 8px 8px;
   max-height: 300px;
@@ -112,7 +112,7 @@ const ComponentDetails = styled.div`
 
 const ComponentLink = styled.a`
   font-size: 0.8rem;
-  color: #00bcd4;
+  color: #ffd700;
   text-decoration: none;
 
   &:hover {
@@ -153,7 +153,7 @@ const MemoTextarea = styled.textarea`
 
   &:focus {
     outline: none;
-    border-color: #00bcd4;
+    border-color: #ffd700;
   }
 
   &::placeholder {
@@ -161,7 +161,7 @@ const MemoTextarea = styled.textarea`
   }
 
   &:hover {
-    border-color: #00bcd4;
+    border-color: #ffd700;
   }
 `;
 

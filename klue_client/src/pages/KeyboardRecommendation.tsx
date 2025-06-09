@@ -184,7 +184,7 @@ const KeyboardRecommendation: React.FC = () => {
   return (
     <div className="keyboard-recommendation">
       <div className="container">
-        <h1>🎩 키보드 소믈리에 tony</h1>
+        <h1>키보드 소믈리에 Tony</h1>
 
         {/* 자연어 입력 섹션 */}
         <div className="natural-language-section">

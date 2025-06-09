@@ -42,13 +42,13 @@ const Title = styled.h1`
 `;
 
 const Description = styled.div`
-  color: #0066cc;
+  color: #000;
   font-size: 0.9rem;
   margin-bottom: 2rem;
   padding: 0.75rem;
-  background-color: #e6f3ff;
+  background-color: #fffaf0;
   border-radius: 4px;
-  border-left: 4px solid #0066cc;
+  border-left: 4px solid #ffd700;
 `;
 
 const CalendarContainer = styled.div`
@@ -110,13 +110,13 @@ const CalendarDate = styled.div<{ $isToday?: boolean }>`
   ${(props) =>
     props.$isToday &&
     `
-    background-color: #0066cc;
+    background-color: #000;
     color: white;
     font-weight: 600;
   `}
 
   &:hover {
-    background-color: ${(props) => (props.$isToday ? "#0052a3" : "#f0f0f0")};
+    background-color: ${(props) => (props.$isToday ? "#333" : "#f0f0f0")};
   }
 `;
 
@@ -161,7 +161,7 @@ const CategoryName = styled.span<{ $isLoading?: boolean }>`
 `;
 
 const CategoryCount = styled.span<{ $isLoading?: boolean }>`
-  background-color: ${(props) => (props.$isLoading ? "#ccc" : "#0066cc")};
+  background-color: ${(props) => (props.$isLoading ? "#ccc" : "#000")};
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
@@ -368,7 +368,7 @@ const HomePage = () => {
 
         <RightSection>
           <CategorySection>
-            <CategoryTitle>키보드의 첫 접촉</CategoryTitle>
+            <CategoryTitle>키보드와 친해지기</CategoryTitle>
             <CategoryList>
               {categories.map((category) => (
                 <CategoryItem
