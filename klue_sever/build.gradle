@@ -19,25 +19,20 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	
-	// Database drivers
-	implementation 'mysql:mysql-connector-java:8.0.33'
-	runtimeOnly 'com.h2database:h2'  // H2 데이터베이스 추가
-	
-	// Swagger/OpenAPI
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
-	
-	// ANTLR 버전 충돌 해결 - 4.10.1로 고정
-	implementation 'org.antlr:antlr4-runtime:4.10.1'
+	// 임시로 제거
+	// implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// implementation 'mysql:mysql-connector-java:8.0.33'
+	// runtimeOnly 'com.h2database:h2'
+	// implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+	// implementation 'org.antlr:antlr4-runtime:4.10.1'
+	// implementation 'org.hibernate.orm:hibernate-core:6.2.7.Final'
+	// implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
 	
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	
-	implementation 'org.hibernate.orm:hibernate-core:6.2.7.Final'
-	implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
 	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
