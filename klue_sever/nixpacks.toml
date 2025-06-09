@@ -1,0 +1,8 @@
+[providers]
+java = "17"
+
+[phases.build]
+cmd = "./gradlew build -x test"
+
+[phases.start]
+cmd = "java -jar build/libs/klue_sever-0.0.1-SNAPSHOT.jar" 
