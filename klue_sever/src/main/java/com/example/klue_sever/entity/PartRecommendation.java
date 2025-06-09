@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.persistence.*;
-import java.util.List;
 
 @Entity
 @Getter
@@ -40,70 +39,53 @@ public class PartRecommendation {
     @Column(nullable = false)
     private Boolean lubeRequired; // 윤활 필요 여부
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "keyboard_case_id")
-    private KeyboardCase recommendedCase;
+    // 복잡한 관계들을 단순화 - ID로만 저장
+    @Column(name = "keyboard_case_id")
+    private Integer recommendedCaseId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plate_id")
-    private Plate recommendedPlate;
+    @Column(name = "plate_id")
+    private Integer recommendedPlateId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pcb_id")
-    private PCB recommendedPCB;
+    @Column(name = "pcb_id")
+    private Integer recommendedPCBId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "switch_id")
-    private Switch recommendedSwitch;
+    @Column(name = "switch_id")
+    private Integer recommendedSwitchId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "keycap_id")
-    private Keycap recommendedKeycap;
+    @Column(name = "keycap_id")
+    private Integer recommendedKeycapId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stabilizer_id")
-    private Stabilizer recommendedStabilizer;
+    @Column(name = "stabilizer_id")
+    private Integer recommendedStabilizerId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cable_id")
-    private Cable recommendedCable;
+    @Column(name = "cable_id")
+    private Integer recommendedCableId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "foam_id")
-    private Foam recommendedFoam;
+    @Column(name = "foam_id")
+    private Integer recommendedFoamId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gasket_id")
-    private Gasket recommendedGasket;
+    @Column(name = "gasket_id")
+    private Integer recommendedGasketId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sound_dampener_id")
-    private SoundDampener recommendedSoundDampener;
+    @Column(name = "sound_dampener_id")
+    private Integer recommendedSoundDampenerId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hardware_connector_id")
-    private HardwareConnector recommendedHardwareConnector;
+    @Column(name = "hardware_connector_id")
+    private Integer recommendedHardwareConnectorId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "weight_id")
-    private Weight recommendedWeight;
+    @Column(name = "weight_id")
+    private Integer recommendedWeightId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lube_id")
-    private Lube recommendedLube;
+    @Column(name = "lube_id")
+    private Integer recommendedLubeId;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "extra_id")
-    private List<Extra> recommendedExtras;
+    private Double recommendationScore; // 추천 점수
 
-    private Double recommendationScore; // 추천 점수 (파이썬 AI 모델에서 계산)
-    
     @Column(length = 1000)
-    private String recommendationReason; // 추천 이유 (파이썬 AI 모델에서 생성)
+    private String recommendationReason; // 추천 이유
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user; // 추천을 받은 사용자
+    @Column(name = "user_id")
+    private Integer userId; // 추천을 받은 사용자 ID
 
     @Column(name = "ai_model_version")
     private String aiModelVersion; // 사용된 AI 모델 버전
