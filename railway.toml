@@ -1,0 +1,9 @@
+[build]
+builder = "nixpacks"
+buildCommand = "cd klue_sever && ./gradlew clean bootJar -x test --no-daemon"
+
+[deploy]
+startCommand = "cd klue_sever && java -jar build/libs/klue_sever-0.0.1-SNAPSHOT.jar"
+
+[env]
+NIXPACKS_JDK_VERSION = "17" 
