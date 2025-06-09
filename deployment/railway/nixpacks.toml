@@ -1,0 +1,16 @@
+# Railway 배포용 nixpacks 설정
+[providers]
+java = "17"
+
+[phases.setup]
+nixPkgs = ["openjdk17"]
+
+[phases.build]
+cmds = [
+  "cd klue_sever",
+  "chmod +x gradlew", 
+  "./gradlew clean bootJar -x test --no-daemon"
+]
+
+[start]
+cmd = "cd klue_sever && java -jar build/libs/klue_sever-0.0.1-SNAPSHOT.jar" 
