@@ -51,9 +51,9 @@ USER klueapp
 
 # 헬스체크 추가
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
+  CMD curl -f http://localhost:8080/health || exit 1
 
-# Railway 컨테이너 환경에 최적화된 JVM 설정
+# Railway 컨테이너 환경에 완전 최적화된 JVM 설정
 CMD ["java", \
      "-Xmx450m", \
      "-Xms128m", \
@@ -61,9 +61,13 @@ CMD ["java", \
      "-XX:MaxRAMPercentage=75.0", \
      "-XX:+UnlockExperimentalVMOptions", \
      "-XX:+UseCGroupMemoryLimitForHeap", \
+     "-XX:-UseContainerSupport", \
      "-Djava.security.egd=file:/dev/./urandom", \
      "-Dspring.profiles.active=production", \
      "-Dmanagement.metrics.export.jmx.enabled=false", \
      "-Dmanagement.endpoint.metrics.enabled=false", \
+     "-Dmanagement.metrics.enable.all=false", \
      "-Djava.awt.headless=true", \
+     "-Dfile.encoding=UTF-8", \
+     "-Duser.timezone=Asia/Seoul", \
      "-jar", "app.jar"] 
