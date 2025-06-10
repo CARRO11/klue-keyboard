@@ -28,7 +28,9 @@ interface Recommendations {
   pcb: Component[];
 }
 
-const BASE_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8080";
+const BASE_URL =
+  process.env.REACT_APP_API_URL ||
+  "https://klue-keyboard-production.up.railway.app";
 
 const KeyboardRecommendation: React.FC = () => {
   const [preferences, setPreferences] = useState<Preferences>({
@@ -99,25 +101,45 @@ const KeyboardRecommendation: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${BASE_URL}/api/recommend/natural`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: naturalLanguageInput,
-          systemPrompt: systemPrompt,
-        }),
-      });
+      // Spring Boot API 올바른 형식으로 호출
+      const response = await fetch(
+        `${BASE_URL}/api/recommendations/by-condition`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            condition: naturalLanguageInput,
+          }),
+        }
+      );
 
       const data = await response.json();
 
-      if (data.success) {
-        setRecommendations(data.recommendations);
-        setAiExplanation(data.ai_explanation);
-        setUserRequest(data.user_request);
+      if (data.switchType) {
+        // Spring Boot 응답 형식에 맞게 수정
+        setAiExplanation(data.reason || "추천이 완료되었습니다.");
+        setUserRequest(naturalLanguageInput);
+
+        // 기본 추천 데이터 생성 (Spring Boot API는 기본적인 추천만 제공)
+        const mockRecommendations = {
+          switches: [
+            {
+              name: data.switchType || "추천 스위치",
+              type: data.switchType,
+              price_tier: 2,
+              link: "#",
+            },
+          ],
+          plate: [],
+          stabilizers: [],
+          keycaps: [],
+          pcb: [],
+        };
+        setRecommendations(mockRecommendations);
       } else {
-        alert("추천 생성 실패: " + data.message);
+        alert("추천 생성 실패: " + (data.error || "알 수 없는 오류"));
       }
     } catch (error) {
       console.error("자연어 API 호출 실패:", error);
