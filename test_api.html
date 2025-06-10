@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API 연결 테스트</title>
+  </head>
+  <body>
+    <h1>KLUE API 연결 테스트</h1>
+    <button onclick="testAPI()">스위치 API 테스트</button>
+    <div id="result"></div>
+
+    <script>
+      async function testAPI() {
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "테스트 중...";
+
+        try {
+          console.log("API 호출 시작...");
+
+          // 실제 프론트엔드에서 사용하는 것과 동일한 방식으로 테스트
+          const baseURL = "https://klue-keyboard-production.up.railway.app/api";
+          const url = `${baseURL}/switches`;
+
+          console.log("요청 URL:", url);
+
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          console.log("응답 상태:", response.status);
+          console.log("응답 헤더:", response.headers);
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log("응답 데이터:", data);
+
+          resultDiv.innerHTML = `
+                    <h2>✅ 성공!</h2>
+                    <p>총 스위치 개수: ${data.totalItems}</p>
+                    <p>메시지: ${data.message}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+        } catch (error) {
+          console.error("API 호출 실패:", error);
+          resultDiv.innerHTML = `
+                    <h2>❌ 실패!</h2>
+                    <p>에러: ${error.message}</p>
+                    <p>개발자 도구 콘솔을 확인하세요.</p>
+                `;
+        }
+      }
+
+      // 페이지 로드 시 자동 테스트
+      window.onload = function () {
+        console.log("페이지 로드됨, API 테스트 시작");
+        testAPI();
+      };
+    </script>
+  </body>
+</html>
