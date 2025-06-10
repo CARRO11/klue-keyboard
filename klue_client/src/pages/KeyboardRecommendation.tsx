@@ -28,6 +28,8 @@ interface Recommendations {
   pcb: Component[];
 }
 
+const BASE_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8080";
+
 const KeyboardRecommendation: React.FC = () => {
   const [preferences, setPreferences] = useState<Preferences>({
     sound_profile: 5,
@@ -62,7 +64,7 @@ const KeyboardRecommendation: React.FC = () => {
   const getRecommendations = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/api/recommend", {
+      const response = await fetch(`${BASE_URL}/api/recommend`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -97,19 +99,16 @@ const KeyboardRecommendation: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/recommend/natural",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: naturalLanguageInput,
-            systemPrompt: systemPrompt,
-          }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/recommend/natural`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: naturalLanguageInput,
+          systemPrompt: systemPrompt,
+        }),
+      });
 
       const data = await response.json();
 

@@ -183,6 +183,8 @@ const CategoryCount = styled.span<{ $isLoading?: boolean }>`
   }
 `;
 
+const BASE_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8080";
+
 const HomePage = () => {
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -205,11 +207,11 @@ const HomePage = () => {
 
         // 실제 데이터가 있는 카테고리들
         const promises = [
-          fetch("http://localhost:8080/switches").then((res) => res.json()),
-          fetch("http://localhost:8080/keycaps").then((res) => res.json()),
-          fetch("http://localhost:8080/pcbs").then((res) => res.json()),
-          fetch("http://localhost:8080/plates").then((res) => res.json()),
-          fetch("http://localhost:8080/stabilizers").then((res) => res.json()),
+          fetch(`${BASE_URL}/switches`).then((res) => res.json()),
+          fetch(`${BASE_URL}/keycaps`).then((res) => res.json()),
+          fetch(`${BASE_URL}/pcbs`).then((res) => res.json()),
+          fetch(`${BASE_URL}/plates`).then((res) => res.json()),
+          fetch(`${BASE_URL}/stabilizers`).then((res) => res.json()),
         ];
 
         const [switchesRes, keycapsRes, pcbsRes, platesRes, stabilizersRes] =
