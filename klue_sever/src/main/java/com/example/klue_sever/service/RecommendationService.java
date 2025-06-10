@@ -2,7 +2,8 @@ package com.example.klue_sever.service;
 
 import com.example.klue_sever.dto.RecommendationRequest;
 import com.example.klue_sever.dto.RecommendationResponse;
-import com.example.klue_sever.repository.*;
+import com.example.klue_sever.repository.SwitchRepository;
+import com.example.klue_sever.repository.KeycapRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,33 +23,15 @@ public class RecommendationService {
 
     private final SwitchRepository switchRepository;
     private final KeycapRepository keycapRepository;
-    private final FoamRepository foamRepository;
-    private final GasketRepository gasketRepository;
-    private final StabilizerRepository stabilizerRepository;
-    private final PCBRepository pcbRepository;
-    private final PlateRepository plateRepository;
-    private final KeyboardCaseRepository keyboardCaseRepository;
     private final ObjectMapper objectMapper;
 
     @Autowired
     public RecommendationService(
             SwitchRepository switchRepository,
             KeycapRepository keycapRepository,
-            FoamRepository foamRepository,
-            GasketRepository gasketRepository,
-            StabilizerRepository stabilizerRepository,
-            PCBRepository pcbRepository,
-            PlateRepository plateRepository,
-            KeyboardCaseRepository keyboardCaseRepository,
             ObjectMapper objectMapper) {
         this.switchRepository = switchRepository;
         this.keycapRepository = keycapRepository;
-        this.foamRepository = foamRepository;
-        this.gasketRepository = gasketRepository;
-        this.stabilizerRepository = stabilizerRepository;
-        this.pcbRepository = pcbRepository;
-        this.plateRepository = plateRepository;
-        this.keyboardCaseRepository = keyboardCaseRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -56,9 +39,6 @@ public class RecommendationService {
         try {
             logger.info("추천 요청 받음: {}", request);
             
-            // 데이터베이스에서 사용 가능한 모든 부품 가져오기
-            Map<String, Object> availableComponents = getAllComponents();
-
             // 간단한 추천 로직
             Map<String, Object> recommendations = new HashMap<>();
             recommendations.put("switches", "추천된 스위치");
@@ -80,13 +60,21 @@ public class RecommendationService {
         try {
             logger.info("조건별 추천 요청: {}", condition);
             
-            // 데이터베이스에서 사용 가능한 모든 부품 가져오기
-            Map<String, Object> availableComponents = getAllComponents();
+            // 기본 부품 개수 조회
+            int switchCount = 0;
+            int keycapCount = 0;
+            
+            try {
+                switchCount = (int) switchRepository.count();
+                keycapCount = (int) keycapRepository.count();
+            } catch (Exception e) {
+                logger.warn("부품 개수 조회 중 오류: {}", e.getMessage());
+            }
 
             // 조건을 기반으로 한 추천 로직
             Map<String, Object> response = new HashMap<>();
             response.put("condition", condition);
-            response.put("recommendations", getComponentsByCondition(condition, availableComponents));
+            response.put("recommendations", getComponentsByCondition(condition, switchCount, keycapCount));
             response.put("message", "조건에 맞는 부품을 추천했습니다: " + condition);
             
             logger.info("조건별 추천 응답 생성 완료");
@@ -103,13 +91,9 @@ public class RecommendationService {
         try {
             logger.info("전체 추천 요청: {}", fullPreferences);
             
-            // 데이터베이스에서 사용 가능한 모든 부품 가져오기
-            Map<String, Object> availableComponents = getAllComponents();
-
-            // 전체 선호도를 기반으로 한 추천 로직
             Map<String, Object> response = new HashMap<>();
             response.put("preferences", fullPreferences);
-            response.put("recommendations", getRecommendationsByPreferences(fullPreferences, availableComponents));
+            response.put("recommendations", getBasicRecommendations());
             response.put("message", "전체 선호도를 기반으로 키보드를 추천했습니다.");
             
             return response;
@@ -121,33 +105,7 @@ public class RecommendationService {
         }
     }
 
-    private Map<String, Object> getAllComponents() {
-        try {
-            Map<String, Object> components = new HashMap<>();
-            
-            components.put("switches", switchRepository.findAll());
-            components.put("keycaps", keycapRepository.findAll());
-            components.put("foams", foamRepository.findAll());
-            components.put("gaskets", gasketRepository.findAll());
-            components.put("stabilizers", stabilizerRepository.findAll());
-            components.put("pcbs", pcbRepository.findAll());
-            components.put("plates", plateRepository.findAll());
-            components.put("keyboardCases", keyboardCaseRepository.findAll());
-            
-            logger.info("모든 부품 조회 완료 - 스위치: {}개, 키캡: {}개, PCB: {}개, 플레이트: {}개", 
-                       ((List<?>) components.get("switches")).size(),
-                       ((List<?>) components.get("keycaps")).size(),
-                       ((List<?>) components.get("pcbs")).size(),
-                       ((List<?>) components.get("plates")).size());
-            
-            return components;
-        } catch (Exception e) {
-            logger.error("부품 조회 중 오류: ", e);
-            return new HashMap<>();
-        }
-    }
-
-    private Map<String, Object> getComponentsByCondition(String condition, Map<String, Object> availableComponents) {
+    private Map<String, Object> getComponentsByCondition(String condition, int switchCount, int keycapCount) {
         Map<String, Object> recommendations = new HashMap<>();
         
         // 기본 추천 로직만 사용
@@ -165,20 +123,18 @@ public class RecommendationService {
         recommendations.put("ai_powered", false);
         
         // 사용 가능한 부품 정보 추가
-        recommendations.put("available_switches", ((List<?>) availableComponents.get("switches")).size());
-        recommendations.put("available_keycaps", ((List<?>) availableComponents.get("keycaps")).size());
-        recommendations.put("available_pcbs", ((List<?>) availableComponents.get("pcbs")).size());
-        recommendations.put("available_plates", ((List<?>) availableComponents.get("plates")).size());
+        recommendations.put("available_switches", switchCount);
+        recommendations.put("available_keycaps", keycapCount);
         
         return recommendations;
     }
 
-    private Map<String, Object> getRecommendationsByPreferences(Map<String, Object> preferences, Map<String, Object> availableComponents) {
+    private Map<String, Object> getBasicRecommendations() {
         Map<String, Object> recommendations = new HashMap<>();
         
-        // 선호도를 기반으로 한 추천 로직
-        recommendations.put("components", availableComponents);
-        recommendations.put("reason", "선호도를 종합적으로 분석하여 최적의 부품을 선정했습니다.");
+        recommendations.put("switchType", "추천 스위치");
+        recommendations.put("keycapType", "추천 키캡");
+        recommendations.put("reason", "기본 추천 로직을 사용했습니다.");
         
         return recommendations;
     }
