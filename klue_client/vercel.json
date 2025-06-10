@@ -5,11 +5,11 @@
   "installCommand": "npm install",
   "devCommand": "npm start",
   "env": {
-    "REACT_APP_API_URL": "@api_url"
+    "REACT_APP_API_URL": "https://klue-keyboard-production.up.railway.app"
   },
   "build": {
     "env": {
-      "REACT_APP_API_URL": "@api_url"
+      "REACT_APP_API_URL": "https://klue-keyboard-production.up.railway.app"
     }
   },
   "routes": [

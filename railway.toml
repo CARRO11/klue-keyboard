@@ -1,9 +1,12 @@
 [build]
 builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
 restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
 
 [variables]
 JAVA_VERSION = "17"
-SPRING_PROFILES_ACTIVE = "production" 
+SPRING_PROFILES_ACTIVE = "production"
+GRADLE_OPTS = "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false" 
