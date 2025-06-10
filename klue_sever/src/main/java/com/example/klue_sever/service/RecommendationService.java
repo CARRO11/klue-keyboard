@@ -29,7 +29,6 @@ public class RecommendationService {
     private final PlateRepository plateRepository;
     private final KeyboardCaseRepository keyboardCaseRepository;
     private final ObjectMapper objectMapper;
-    private final OpenAIService openAIService;
 
     @Autowired
     public RecommendationService(
@@ -41,8 +40,7 @@ public class RecommendationService {
             PCBRepository pcbRepository,
             PlateRepository plateRepository,
             KeyboardCaseRepository keyboardCaseRepository,
-            ObjectMapper objectMapper,
-            OpenAIService openAIService) {
+            ObjectMapper objectMapper) {
         this.switchRepository = switchRepository;
         this.keycapRepository = keycapRepository;
         this.foamRepository = foamRepository;
@@ -52,7 +50,6 @@ public class RecommendationService {
         this.plateRepository = plateRepository;
         this.keyboardCaseRepository = keyboardCaseRepository;
         this.objectMapper = objectMapper;
-        this.openAIService = openAIService;
     }
 
     public RecommendationResponse getRecommendation(RecommendationRequest request) {
@@ -62,7 +59,7 @@ public class RecommendationService {
             // 데이터베이스에서 사용 가능한 모든 부품 가져오기
             Map<String, Object> availableComponents = getAllComponents();
 
-            // 간단한 추천 로직 (Python 스크립트 제거)
+            // 간단한 추천 로직
             Map<String, Object> recommendations = new HashMap<>();
             recommendations.put("switches", "추천된 스위치");
             recommendations.put("keycaps", "추천된 키캡");
@@ -153,28 +150,19 @@ public class RecommendationService {
     private Map<String, Object> getComponentsByCondition(String condition, Map<String, Object> availableComponents) {
         Map<String, Object> recommendations = new HashMap<>();
         
-        // OpenAI가 설정되어 있으면 AI 추천 사용
-        if (openAIService.isOpenAIConfigured()) {
-            logger.info("AI 추천 사용");
-            String aiRecommendation = openAIService.generateKeyboardRecommendation(condition, availableComponents);
-            recommendations.put("switchType", "AI 추천");
-            recommendations.put("reason", aiRecommendation);
-            recommendations.put("ai_powered", true);
+        // 기본 추천 로직만 사용
+        logger.info("기본 추천 로직 사용");
+        if (condition.contains("조용한") || condition.contains("사무용")) {
+            recommendations.put("switchType", "선형 스위치");
+            recommendations.put("reason", "사무용으로 조용한 선형 스위치를 추천합니다.");
+        } else if (condition.contains("게이밍") || condition.contains("게임")) {
+            recommendations.put("switchType", "클릭 스위치");
+            recommendations.put("reason", "게이밍용으로 빠른 반응의 클릭 스위치를 추천합니다.");
         } else {
-            logger.info("기본 추천 로직 사용");
-            // OpenAI가 설정되지 않았으면 기본 로직 사용
-            if (condition.contains("조용한") || condition.contains("사무용")) {
-                recommendations.put("switchType", "선형 스위치");
-                recommendations.put("reason", "사무용으로 조용한 선형 스위치를 추천합니다.");
-            } else if (condition.contains("게이밍") || condition.contains("게임")) {
-                recommendations.put("switchType", "클릭 스위치");
-                recommendations.put("reason", "게이밍용으로 빠른 반응의 클릭 스위치를 추천합니다.");
-            } else {
-                recommendations.put("switchType", "촉각 스위치");
-                recommendations.put("reason", "일반적인 용도로 촉각 피드백이 좋은 스위치를 추천합니다.");
-            }
-            recommendations.put("ai_powered", false);
+            recommendations.put("switchType", "촉각 스위치");
+            recommendations.put("reason", "일반적인 용도로 촉각 피드백이 좋은 스위치를 추천합니다.");
         }
+        recommendations.put("ai_powered", false);
         
         // 사용 가능한 부품 정보 추가
         recommendations.put("available_switches", ((List<?>) availableComponents.get("switches")).size());

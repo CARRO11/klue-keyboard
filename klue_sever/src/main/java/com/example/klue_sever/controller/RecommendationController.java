@@ -3,7 +3,6 @@ package com.example.klue_sever.controller;
 import com.example.klue_sever.dto.RecommendationRequest;
 import com.example.klue_sever.dto.RecommendationResponse;
 import com.example.klue_sever.service.RecommendationService;
-import com.example.klue_sever.service.OpenAIService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +20,10 @@ public class RecommendationController {
     private static final Logger logger = LoggerFactory.getLogger(RecommendationController.class);
     
     private final RecommendationService recommendationService;
-    private final OpenAIService openAIService;
 
     @Autowired
-    public RecommendationController(RecommendationService recommendationService, OpenAIService openAIService) {
+    public RecommendationController(RecommendationService recommendationService) {
         this.recommendationService = recommendationService;
-        this.openAIService = openAIService;
     }
 
     @PostMapping("/recommendation")
@@ -97,10 +94,10 @@ public class RecommendationController {
             Map<String, Object> status = new HashMap<>();
             status.put("service", "추천 서비스");
             status.put("status", "활성");
-            status.put("openai_configured", openAIService.isOpenAIConfigured());
-            status.put("openai_status", openAIService.getApiKeyStatus());
+            status.put("openai_configured", false);  // 임시로 false 설정
+            status.put("openai_status", "OpenAI 서비스 비활성화됨");
             
-            logger.info("상태 확인 요청 - OpenAI 설정: {}", openAIService.isOpenAIConfigured());
+            logger.info("상태 확인 요청 완료");
             return ResponseEntity.ok(status);
         } catch (Exception e) {
             logger.error("상태 확인 중 오류:", e);
@@ -110,28 +107,22 @@ public class RecommendationController {
         }
     }
 
-    @PostMapping("/test-openai")
-    public ResponseEntity<Map<String, Object>> testOpenAI(@RequestBody Map<String, String> request) {
+    @PostMapping("/test-basic")
+    public ResponseEntity<Map<String, Object>> testBasic(@RequestBody Map<String, String> request) {
         try {
-            String testRequest = request.getOrDefault("request", "게이밍용 키보드 추천해줘");
-            logger.info("OpenAI 테스트 요청: {}", testRequest);
+            String testRequest = request.getOrDefault("request", "기본 추천 테스트");
+            logger.info("기본 추천 테스트 요청: {}", testRequest);
             
             Map<String, Object> response = new HashMap<>();
-            if (openAIService.isOpenAIConfigured()) {
-                Map<String, Object> dummyComponents = new HashMap<>();
-                String aiResponse = openAIService.generateKeyboardRecommendation(testRequest, dummyComponents);
-                response.put("openai_response", aiResponse);
-                response.put("test_success", true);
-            } else {
-                response.put("error", "OpenAI API 키가 설정되지 않았습니다.");
-                response.put("test_success", false);
-            }
+            response.put("message", "기본 추천 서비스가 정상 작동합니다.");
+            response.put("request", testRequest);
+            response.put("test_success", true);
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            logger.error("OpenAI 테스트 중 오류:", e);
+            logger.error("기본 테스트 중 오류:", e);
             Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "OpenAI 테스트 중 오류 발생: " + e.getMessage());
+            errorResponse.put("error", "기본 테스트 중 오류 발생: " + e.getMessage());
             errorResponse.put("test_success", false);
             return ResponseEntity.badRequest().body(errorResponse);
         }
