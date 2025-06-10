@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 
@@ -28,5 +29,6 @@ public class PCB {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "keyboard_case_id", nullable = false)
+    @JsonIgnore
     private KeyboardCase keyboardCase;
 } 
