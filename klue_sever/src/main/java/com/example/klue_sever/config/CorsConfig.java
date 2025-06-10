@@ -28,7 +28,8 @@ public class CorsConfig implements WebMvcConfigurer {
                     "http://localhost:*",
                     "http://127.0.0.1:*",
                     "https://*.vercel.app",
-                    "https://*.up.railway.app"
+                    "https://*.up.railway.app",
+                    "https://klueclient.vercel.app"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
@@ -44,11 +45,12 @@ public class CorsConfig implements WebMvcConfigurer {
         // 설정된 origins 추가
         origins.forEach(configuration::addAllowedOrigin);
         
-        // 패턴 기반 origins 추가
+        // 패턴 기반 origins 추가 - Vercel 도메인 명시적 추가
         configuration.addAllowedOriginPattern("http://localhost:*");
         configuration.addAllowedOriginPattern("http://127.0.0.1:*");
         configuration.addAllowedOriginPattern("https://*.vercel.app");
         configuration.addAllowedOriginPattern("https://*.up.railway.app");
+        configuration.addAllowedOrigin("https://klueclient.vercel.app");
         
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
