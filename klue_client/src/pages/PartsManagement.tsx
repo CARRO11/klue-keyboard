@@ -357,7 +357,7 @@ const PartsManagement: React.FC = () => {
 
   if (loading && parts.length === 0) {
     return (
-      <LoadingDiv>🔄 {PART_TYPE_LABELS[currentPartType]} 로딩 중...</LoadingDiv>
+      <LoadingDiv>{PART_TYPE_LABELS[currentPartType]} 로딩 중...</LoadingDiv>
     );
   }
 
@@ -420,14 +420,14 @@ const PartsManagement: React.FC = () => {
           onChange={(e) => setSearchKeyword(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && handleSearch()}
         />
-        <SearchButton onClick={handleSearch}>🔍 검색</SearchButton>
+        <SearchButton onClick={handleSearch}>검색</SearchButton>
         <SearchButton
           onClick={() => {
             setSearchKeyword("");
             loadParts(currentPartType);
           }}
         >
-          🔄 초기화
+          초기화
         </SearchButton>
       </SearchSection>
 
@@ -444,7 +444,7 @@ const PartsManagement: React.FC = () => {
             {part.link && (
               <PartDetail>
                 <a href={part.link} target="_blank" rel="noopener noreferrer">
-                  🔗 상품 링크
+                  상품 링크
                 </a>
               </PartDetail>
             )}
@@ -455,7 +455,7 @@ const PartsManagement: React.FC = () => {
       {/* 데이터가 없을 때 */}
       {!loading && parts.length === 0 && !error && (
         <LoadingDiv>
-          📦 {PART_TYPE_LABELS[currentPartType]} 데이터가 없습니다.
+          {PART_TYPE_LABELS[currentPartType]} 데이터가 없습니다.
         </LoadingDiv>
       )}
     </Container>
