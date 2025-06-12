@@ -101,7 +101,7 @@ const KeyboardRecommendation: React.FC = () => {
 
     setLoading(true);
     try {
-      // Spring Boot API 올바른 형식으로 호출
+      // Spring Boot API 호출
       const response = await fetch(
         `${BASE_URL}/api/recommendations/by-condition`,
         {
@@ -118,26 +118,12 @@ const KeyboardRecommendation: React.FC = () => {
       const data = await response.json();
 
       if (data.switchType) {
-        // Spring Boot 응답 형식에 맞게 수정
+        // AI 추천 설명 설정
         setAiExplanation(data.reason || "추천이 완료되었습니다.");
         setUserRequest(naturalLanguageInput);
 
-        // 기본 추천 데이터 생성 (Spring Boot API는 기본적인 추천만 제공)
-        const mockRecommendations = {
-          switches: [
-            {
-              name: data.switchType || "추천 스위치",
-              type: data.switchType,
-              price_tier: 2,
-              link: "#",
-            },
-          ],
-          plate: [],
-          stabilizers: [],
-          keycaps: [],
-          pcb: [],
-        };
-        setRecommendations(mockRecommendations);
+        // 실제 데이터베이스 부품들을 가져오기
+        await fetchRealComponents(data);
       } else {
         alert("추천 생성 실패: " + (data.error || "알 수 없는 오류"));
       }
@@ -146,6 +132,99 @@ const KeyboardRecommendation: React.FC = () => {
       alert("서버 연결에 실패했습니다.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 실제 데이터베이스에서 부품들을 가져오는 함수
+  const fetchRealComponents = async (aiResponse: any) => {
+    try {
+      // 각 카테고리별로 부품 데이터 가져오기
+      const [switchesRes, keycapsRes, pcbsRes, platesRes, stabilizersRes] =
+        await Promise.all([
+          fetch(`${BASE_URL}/api/switches?page=0&size=3`),
+          fetch(`${BASE_URL}/api/keycaps?page=0&size=3`),
+          fetch(`${BASE_URL}/api/pcbs`),
+          fetch(`${BASE_URL}/api/plates`),
+          fetch(`${BASE_URL}/api/stabilizers?page=0&size=3`),
+        ]);
+
+      const switchesData = await switchesRes.json();
+      const keycapsData = await keycapsRes.json();
+      const pcbsData = await pcbsRes.json();
+      const platesData = await platesRes.json();
+      const stabilizersData = await stabilizersRes.json();
+
+      // 실제 데이터베이스 부품들로 추천 구성
+      const realRecommendations = {
+        switches: (switchesData.content || switchesData)
+          .slice(0, 3)
+          .map((s: any) => ({
+            name: s.name,
+            type: s.type || "스위치",
+            material: s.stemMaterial || s.material,
+            price_tier: 2,
+            link: s.link || "#",
+            sound_score: s.soundScore || 7,
+            smoothness_score: s.smoothnessScore || 8,
+            speed_score: s.speedScore || 7,
+          })),
+        keycaps: (keycapsData.content || keycapsData)
+          .slice(0, 3)
+          .map((k: any) => ({
+            name: k.name,
+            material: k.material,
+            profile: k.profile,
+            price_tier: Math.floor(k.priceTier || 2),
+            link: k.link || "#",
+          })),
+        pcb: (pcbsData.slice ? pcbsData.slice(0, 3) : []).map((p: any) => ({
+          name: p.name,
+          layout: p.layout,
+          hotswap: p.hotswap,
+          wireless: p.wireless,
+          price_tier: Math.floor(p.priceTier || 2),
+          link: p.link || "#",
+        })),
+        plate: (platesData.slice ? platesData.slice(0, 3) : []).map(
+          (p: any) => ({
+            name: p.name,
+            material: p.material,
+            thickness: p.thickness,
+            price_tier: Math.floor(p.priceTier || 2),
+            link: p.link || "#",
+          })
+        ),
+        stabilizers: (stabilizersData.content || stabilizersData)
+          .slice(0, 3)
+          .map((s: any) => ({
+            name: s.name,
+            material: s.material,
+            size: s.size,
+            price_tier: 2,
+            link: s.link || "#",
+          })),
+      };
+
+      setRecommendations(realRecommendations);
+    } catch (error) {
+      console.error("실제 부품 데이터 로딩 실패:", error);
+
+      // 실패 시 기본 데이터 사용
+      const fallbackRecommendations = {
+        switches: [
+          {
+            name: aiResponse.switchType || "추천 스위치",
+            type: aiResponse.switchType,
+            price_tier: 2,
+            link: "#",
+          },
+        ],
+        plate: [],
+        stabilizers: [],
+        keycaps: [],
+        pcb: [],
+      };
+      setRecommendations(fallbackRecommendations);
     }
   };
 
