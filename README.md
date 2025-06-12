@@ -356,7 +356,7 @@ REACT_APP_API_URL=https://klue-keyboard-production.up.railway.app
 ## 📞 연락처
 
 - **프로젝트 링크**: [https://github.com/CARRO11/klue-keyboard](https://github.com/CARRO11/klue-keyboard)
-- **라이브 데모**: [https://klueclient.vercel.app](https://klueclient.vercel.app)
+- **라이브 데모**: [https://klueclient.vercel.app](https://klueclient.vercel.app) 🚀
 - **API 문서**: [https://klue-keyboard-production.up.railway.app/actuator](https://klue-keyboard-production.up.railway.app/actuator)
 
 ---
