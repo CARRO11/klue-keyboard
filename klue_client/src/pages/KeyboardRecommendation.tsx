@@ -138,14 +138,14 @@ const KeyboardRecommendation: React.FC = () => {
   // 실제 데이터베이스에서 부품들을 가져오는 함수
   const fetchRealComponents = async (aiResponse: any) => {
     try {
-      // 각 카테고리별로 부품 데이터 가져오기
+      // 각 카테고리별로 부품 데이터 가져오기 (2개씩만)
       const [switchesRes, keycapsRes, pcbsRes, platesRes, stabilizersRes] =
         await Promise.all([
-          fetch(`${BASE_URL}/api/switches?page=0&size=3`),
-          fetch(`${BASE_URL}/api/keycaps?page=0&size=3`),
+          fetch(`${BASE_URL}/api/switches?page=0&size=2`),
+          fetch(`${BASE_URL}/api/keycaps?page=0&size=2`),
           fetch(`${BASE_URL}/api/pcbs`),
           fetch(`${BASE_URL}/api/plates`),
-          fetch(`${BASE_URL}/api/stabilizers?page=0&size=3`),
+          fetch(`${BASE_URL}/api/stabilizers?page=0&size=2`),
         ]);
 
       const switchesData = await switchesRes.json();
@@ -168,45 +168,82 @@ const KeyboardRecommendation: React.FC = () => {
       const stabilizers =
         stabilizersData.stabilizers || stabilizersData.content || [];
 
+      // price_tier 계산 함수
+      const calculatePriceTier = (item: any) => {
+        // 1. 실제 priceTier 값이 있으면 사용
+        if (item.priceTier && item.priceTier > 0) {
+          return Math.round(item.priceTier);
+        }
+
+        // 2. 스위치의 경우 점수 기반으로 계산
+        if (item.soundScore || item.linearScore || item.tactileScore) {
+          const avgScore =
+            ((item.soundScore || 0) +
+              (item.linearScore || 0) +
+              (item.tactileScore || 0) +
+              (item.smoothnessScore || 0)) /
+            4;
+
+          if (avgScore >= 8.5) return 4; // 프리미엄
+          if (avgScore >= 7.5) return 3; // 고급
+          if (avgScore >= 6.0) return 2; // 중급
+          return 1; // 엔트리
+        }
+
+        // 3. 키캡의 경우 재질 기반
+        if (item.material) {
+          if (
+            item.material.toLowerCase().includes("gmk") ||
+            item.material.toLowerCase().includes("abs")
+          )
+            return 3;
+          if (item.material.toLowerCase().includes("pbt")) return 2;
+          return 1;
+        }
+
+        // 4. 기본값
+        return 2;
+      };
+
       // 실제 데이터베이스 부품들로 추천 구성
       const realRecommendations = {
-        switches: switches.slice(0, 3).map((s: any) => ({
+        switches: switches.slice(0, 2).map((s: any) => ({
           name: s.name || "알 수 없는 스위치",
           type: s.type || "Linear",
           material: s.stemMaterial || s.material || "POM",
-          price_tier: 2,
+          price_tier: calculatePriceTier(s),
           link: s.link || "#",
           sound_score: Math.round(s.soundScore || 7),
           smoothness_score: Math.round(s.smoothnessScore || 8),
           speed_score: Math.round(s.speedScore || s.linearScore || 7),
         })),
-        keycaps: keycaps.slice(0, 3).map((k: any) => ({
+        keycaps: keycaps.slice(0, 2).map((k: any) => ({
           name: k.name || "알 수 없는 키캡",
           material: k.material || "PBT",
           profile: k.profile || "Cherry",
-          price_tier: 2,
+          price_tier: calculatePriceTier(k),
           link: k.link || "#",
         })),
-        pcb: pcbs.slice(0, 3).map((p: any) => ({
+        pcb: pcbs.slice(0, 2).map((p: any) => ({
           name: p.name || "알 수 없는 PCB",
           layout: p.layout || "60%",
           hotswap: p.hotswap,
           wireless: p.wireless,
-          price_tier: 2,
+          price_tier: calculatePriceTier(p),
           link: p.link || "#",
         })),
-        plate: plates.slice(0, 3).map((p: any) => ({
+        plate: plates.slice(0, 2).map((p: any) => ({
           name: p.name || "알 수 없는 플레이트",
           material: p.material || "Aluminum",
           thickness: p.thickness,
-          price_tier: 2,
+          price_tier: calculatePriceTier(p),
           link: p.link || "#",
         })),
-        stabilizers: stabilizers.slice(0, 3).map((s: any) => ({
+        stabilizers: stabilizers.slice(0, 2).map((s: any) => ({
           name: s.name || "알 수 없는 스테빌라이저",
           material: s.material || "Plastic",
           size: s.size,
-          price_tier: 2,
+          price_tier: calculatePriceTier(s),
           link: s.link || "#",
         })),
       };
@@ -536,7 +573,7 @@ const KeyboardRecommendation: React.FC = () => {
                 </h3>
                 <div className="components-grid">
                   {components
-                    .slice(0, 3)
+                    .slice(0, 2)
                     .map((component: Component) =>
                       renderComponent(component, category)
                     )}
