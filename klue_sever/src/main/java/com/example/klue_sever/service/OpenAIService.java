@@ -1,5 +1,6 @@
 package com.example.klue_sever.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -22,6 +23,9 @@ public class OpenAIService {
     @Value("${openai.api.key:${OPENAI_API_KEY:}}")
     private String openaiApiKey;
 
+    @Autowired
+    private ComponentDataService componentDataService;
+
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
@@ -40,7 +44,12 @@ public class OpenAIService {
 
         try {
             logger.info("OpenAI API 호출 시작 - 사용자 요청: {}", userRequest);
-            String prompt = buildPrompt(userRequest, availableComponents);
+            
+            // 실제 데이터베이스에서 부품 정보 가져오기
+            Map<String, Object> dbComponents = componentDataService.getAllComponentsForAI();
+            logger.info("데이터베이스에서 부품 정보 수집 완료: {}개 카테고리", dbComponents.size());
+            
+            String prompt = buildPrompt(userRequest, dbComponents);
             
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", "gpt-3.5-turbo");
@@ -100,32 +109,91 @@ public class OpenAIService {
     private String buildPrompt(String userRequest, Map<String, Object> availableComponents) {
         StringBuilder prompt = new StringBuilder();
         prompt.append("사용자 요청: ").append(userRequest).append("\n\n");
-        prompt.append("사용 가능한 부품들:\n");
         
+        prompt.append("KLUE 데이터베이스에서 실제 사용 가능한 키보드 부품들:\n\n");
+        
+        // 스위치 정보
         if (availableComponents.containsKey("switches")) {
-            List<?> switches = (List<?>) availableComponents.get("switches");
-            prompt.append("- 스위치: ").append(switches.size()).append("개\n");
+            List<Map<String, Object>> switches = (List<Map<String, Object>>) availableComponents.get("switches");
+            prompt.append("🔘 스위치 (").append(switches.size()).append("개):\n");
+            switches.stream().limit(5).forEach(s -> {
+                prompt.append("  - ").append(s.get("name"))
+                      .append(" (").append(s.get("type")).append(")")
+                      .append(" - 압력: ").append(s.get("pressure")).append("g\n");
+            });
+            if (switches.size() > 5) {
+                prompt.append("  ... 및 ").append(switches.size() - 5).append("개 더\n");
+            }
+            prompt.append("\n");
         }
+        
+        // 키캡 정보
         if (availableComponents.containsKey("keycaps")) {
-            List<?> keycaps = (List<?>) availableComponents.get("keycaps");
-            prompt.append("- 키캡: ").append(keycaps.size()).append("개\n");
+            List<Map<String, Object>> keycaps = (List<Map<String, Object>>) availableComponents.get("keycaps");
+            prompt.append("🎩 키캡 (").append(keycaps.size()).append("개):\n");
+            keycaps.stream().limit(5).forEach(k -> {
+                prompt.append("  - ").append(k.get("name"))
+                      .append(" (").append(k.get("material")).append(", ")
+                      .append(k.get("profile")).append(")\n");
+            });
+            if (keycaps.size() > 5) {
+                prompt.append("  ... 및 ").append(keycaps.size() - 5).append("개 더\n");
+            }
+            prompt.append("\n");
         }
+        
+        // PCB 정보
+        if (availableComponents.containsKey("pcbs")) {
+            List<Map<String, Object>> pcbs = (List<Map<String, Object>>) availableComponents.get("pcbs");
+            prompt.append("🔌 PCB (").append(pcbs.size()).append("개):\n");
+            pcbs.stream().limit(3).forEach(p -> {
+                prompt.append("  - ").append(p.get("name"))
+                      .append(" (").append(p.get("layout")).append(")")
+                      .append(Boolean.TRUE.equals(p.get("hotswap")) ? " - 핫스왑 지원" : "")
+                      .append(Boolean.TRUE.equals(p.get("wireless")) ? " - 무선" : "")
+                      .append("\n");
+            });
+            if (pcbs.size() > 3) {
+                prompt.append("  ... 및 ").append(pcbs.size() - 3).append("개 더\n");
+            }
+            prompt.append("\n");
+        }
+        
+        // 플레이트 정보
+        if (availableComponents.containsKey("plates")) {
+            List<Map<String, Object>> plates = (List<Map<String, Object>>) availableComponents.get("plates");
+            prompt.append("📏 플레이트 (").append(plates.size()).append("개):\n");
+            plates.stream().limit(3).forEach(p -> {
+                prompt.append("  - ").append(p.get("name"))
+                      .append(" (").append(p.get("material")).append(")\n");
+            });
+            if (plates.size() > 3) {
+                prompt.append("  ... 및 ").append(plates.size() - 3).append("개 더\n");
+            }
+            prompt.append("\n");
+        }
+        
+        // 기타 부품들
         if (availableComponents.containsKey("stabilizers")) {
-            List<?> stabilizers = (List<?>) availableComponents.get("stabilizers");
-            prompt.append("- 스테빌라이저: ").append(stabilizers.size()).append("개\n");
-        }
-        if (availableComponents.containsKey("foams")) {
-            List<?> foams = (List<?>) availableComponents.get("foams");
-            prompt.append("- 폼: ").append(foams.size()).append("개\n");
+            List<Map<String, Object>> stabilizers = (List<Map<String, Object>>) availableComponents.get("stabilizers");
+            prompt.append("⚖️ 스테빌라이저: ").append(stabilizers.size()).append("개\n");
         }
         if (availableComponents.containsKey("gaskets")) {
-            List<?> gaskets = (List<?>) availableComponents.get("gaskets");
-            prompt.append("- 가스켓: ").append(gaskets.size()).append("개\n");
+            List<Map<String, Object>> gaskets = (List<Map<String, Object>>) availableComponents.get("gaskets");
+            prompt.append("🔧 가스켓: ").append(gaskets.size()).append("개\n");
+        }
+        if (availableComponents.containsKey("foams")) {
+            List<Map<String, Object>> foams = (List<Map<String, Object>>) availableComponents.get("foams");
+            prompt.append("🧽 폼: ").append(foams.size()).append("개\n");
+        }
+        if (availableComponents.containsKey("cables")) {
+            List<Map<String, Object>> cables = (List<Map<String, Object>>) availableComponents.get("cables");
+            prompt.append("🔌 케이블: ").append(cables.size()).append("개\n");
         }
         
-        prompt.append("\n사용자의 요청에 맞는 키보드 구성을 추천해주세요. ");
-        prompt.append("추천 이유와 함께 구체적으로 설명해주세요. ");
-        prompt.append("응답은 한국어로 작성하며, 300자 이내로 간결하게 작성해주세요.");
+        prompt.append("\n위 실제 KLUE 데이터베이스의 부품들 중에서 사용자의 요청에 가장 적합한 조합을 추천해주세요. ");
+        prompt.append("구체적인 부품명을 포함하여 추천 이유와 함께 설명해주세요. ");
+        prompt.append("응답은 한국어로 작성하며, 400자 이내로 간결하고 전문적으로 작성해주세요.");
         
         return prompt.toString();
     }

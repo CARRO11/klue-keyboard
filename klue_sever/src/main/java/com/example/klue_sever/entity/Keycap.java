@@ -47,4 +47,18 @@ public class Keycap {
 
     @Column(length = 100, name = "switch_compatibility")
     private String switchCompatibility;
+
+    @Column(name = "sound_profile")
+    private Float soundProfile;
+
+    @Column(name = "build_quality")
+    private Float buildQuality;
+
+    @Column(name = "price_tier")
+    private Float priceTier;
+
+    @Column(name = "rgb_compatible")
+    private Boolean rgbCompatible;
+
+    private Float durability;
 } 

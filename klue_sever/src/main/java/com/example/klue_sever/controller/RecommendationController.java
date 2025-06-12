@@ -1,6 +1,7 @@
 package com.example.klue_sever.controller;
 
 import com.example.klue_sever.service.OpenAIService;
+import com.example.klue_sever.service.ComponentDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,9 @@ public class RecommendationController {
     
     @Autowired
     private OpenAIService openAIService;
+    
+    @Autowired
+    private ComponentDataService componentDataService;
 
     @PostMapping("/by-condition")
     public ResponseEntity<Map<String, Object>> getRecommendationByCondition(@RequestBody Map<String, String> request) {
@@ -32,13 +36,17 @@ public class RecommendationController {
             // OpenAI가 설정되어 있으면 AI 추천 사용
             if (openAIService.isOpenAIConfigured()) {
                 logger.info("OpenAI를 사용하여 추천 생성 중...");
-                Map<String, Object> availableComponents = new HashMap<>();
-                String aiRecommendation = openAIService.generateKeyboardRecommendation(condition, availableComponents);
+                
+                // 데이터베이스 부품 통계 정보 추가
+                Map<String, Integer> componentCounts = componentDataService.getComponentCounts();
+                
+                String aiRecommendation = openAIService.generateKeyboardRecommendation(condition, new HashMap<>());
                 
                 response.put("switchType", getRecommendedSwitch(condition));
                 response.put("reason", aiRecommendation);
                 response.put("ai_powered", true);
-                response.put("message", "AI Tony가 추천했습니다: " + condition);
+                response.put("message", "AI Tony가 KLUE 데이터베이스의 실제 부품들을 기반으로 추천했습니다: " + condition);
+                response.put("component_counts", componentCounts);
             } else {
                 // 기본 추천 사용
                 response.put("switchType", getRecommendedSwitch(condition));
@@ -89,8 +97,14 @@ public class RecommendationController {
             status.put("openai_configured", openAIService.isOpenAIConfigured());
             status.put("openai_status", openAIService.getApiKeyStatus());
             status.put("basic_recommendation", "활성");
+            status.put("database_connection", "활성");
             
-            logger.info("상태 확인 요청 완료");
+            // 데이터베이스 부품 통계 추가
+            Map<String, Integer> componentCounts = componentDataService.getComponentCounts();
+            status.put("component_counts", componentCounts);
+            status.put("total_components", componentCounts.values().stream().mapToInt(Integer::intValue).sum());
+            
+            logger.info("상태 확인 요청 완료 - 총 {}개 부품", componentCounts.values().stream().mapToInt(Integer::intValue).sum());
             return ResponseEntity.ok(status);
         } catch (Exception e) {
             logger.error("상태 확인 중 오류:", e);
@@ -131,20 +145,25 @@ public class RecommendationController {
             Map<String, Object> response = new HashMap<>();
             
             if (openAIService.isOpenAIConfigured()) {
-                Map<String, Object> availableComponents = new HashMap<>();
-                String aiResponse = openAIService.generateKeyboardRecommendation(testRequest, availableComponents);
+                // 데이터베이스 부품 통계 정보 추가
+                Map<String, Integer> componentCounts = componentDataService.getComponentCounts();
                 
-                response.put("message", "OpenAI 테스트 성공");
+                String aiResponse = openAIService.generateKeyboardRecommendation(testRequest, new HashMap<>());
+                
+                response.put("message", "OpenAI 테스트 성공 - KLUE 데이터베이스 연동");
                 response.put("request", testRequest);
                 response.put("ai_response", aiResponse);
                 response.put("test_success", true);
                 response.put("openai_used", true);
+                response.put("database_used", true);
+                response.put("component_counts", componentCounts);
             } else {
                 response.put("message", "OpenAI API 키가 설정되지 않음");
                 response.put("request", testRequest);
                 response.put("ai_response", "OpenAI 서비스를 사용할 수 없습니다.");
                 response.put("test_success", false);
                 response.put("openai_used", false);
+                response.put("database_used", false);
             }
             
             response.put("timestamp", System.currentTimeMillis());

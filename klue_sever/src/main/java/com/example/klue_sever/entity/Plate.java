@@ -27,8 +27,34 @@ public class Plate {
 
     private String description;
 
+    private String material;
+
+    private Integer size;
+
+    @Column(name = "Compatibility")
+    private String compatibility;
+
+    @Column(name = "component_id")
+    private Integer componentId;
+
+    private Float thickness;
+
+    private String layout;
+
+    @Column(name = "typing_feel")
+    private Float typingFeel;
+
+    @Column(name = "flex_level")
+    private Float flexLevel;
+
+    @Column(name = "sound_profile")
+    private Float soundProfile;
+
+    @Column(name = "price_tier")
+    private Float priceTier;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "keyboard_case_id", nullable = false)
+    @JoinColumn(name = "keyboard_case_id")
     @JsonIgnore
     private KeyboardCase keyboardCase;
 } 
