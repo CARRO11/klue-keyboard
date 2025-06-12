@@ -108,10 +108,8 @@ public class ComponentDataService {
             stabilizerService.findAll().forEach(s -> {
                 Map<String, Object> stabData = new HashMap<>();
                 stabData.put("name", s.getName());
-                stabData.put("type", s.getType());
                 stabData.put("material", s.getMaterial());
-                stabData.put("wire_thickness", s.getWireThickness());
-                stabData.put("stability", s.getStability());
+                stabData.put("size", s.getSize());
                 stabilizers.add(stabData);
             });
             components.put("stabilizers", stabilizers);
@@ -123,9 +121,7 @@ public class ComponentDataService {
                 Map<String, Object> gasketData = new HashMap<>();
                 gasketData.put("name", g.getName());
                 gasketData.put("material", g.getMaterial());
-                gasketData.put("thickness", g.getThickness());
-                gasketData.put("flexibility", g.getFlexibility());
-                gasketData.put("dampening", g.getDampening());
+                gasketData.put("typing", g.getTyping());
                 gaskets.add(gasketData);
             });
             components.put("gaskets", gaskets);
@@ -137,9 +133,6 @@ public class ComponentDataService {
                 Map<String, Object> foamData = new HashMap<>();
                 foamData.put("name", f.getName());
                 foamData.put("material", f.getMaterial());
-                foamData.put("thickness", f.getThickness());
-                foamData.put("density", f.getDensity());
-                foamData.put("dampening", f.getDampening());
                 foams.add(foamData);
             });
             components.put("foams", foams);
@@ -150,10 +143,8 @@ public class ComponentDataService {
             cableService.findAll().forEach(c -> {
                 Map<String, Object> cableData = new HashMap<>();
                 cableData.put("name", c.getName());
-                cableData.put("type", c.getType());
-                cableData.put("connector", c.getConnector());
+                cableData.put("material", c.getMaterial());
                 cableData.put("length", c.getLength());
-                cableData.put("price_tier", c.getPriceTier());
                 cables.add(cableData);
             });
             components.put("cables", cables);
@@ -178,8 +169,8 @@ public class ComponentDataService {
         try {
             counts.put("switches", (int) switchService.count());
             counts.put("keycaps", (int) keycapService.count());
-            counts.put("pcbs", (int) pcbService.count());
-            counts.put("plates", (int) plateService.count());
+            counts.put("pcbs", pcbService.findAll().size());
+            counts.put("plates", plateService.findAll().size());
             counts.put("stabilizers", (int) stabilizerService.count());
             counts.put("gaskets", (int) gasketService.count());
             counts.put("foams", (int) foamService.count());
