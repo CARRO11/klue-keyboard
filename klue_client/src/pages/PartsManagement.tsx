@@ -363,7 +363,7 @@ const PartsManagement: React.FC = () => {
 
   return (
     <Container>
-      <Title>🔧 키보드 부품 관리</Title>
+      <Title>키보드 부품 관리</Title>
 
       {/* 부품 타입 선택 */}
       <PartTypeSection>

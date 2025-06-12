@@ -481,7 +481,7 @@ const BuildPage = () => {
       <BuildContainer>
         <div ref={buildRef}>
           <BuildSummaryContainer>
-            <BuildTitle>🎹 나만의 키보드 빌드</BuildTitle>
+            <BuildTitle>나만의 키보드 빌드</BuildTitle>
             <BuildDate>
               빌드 날짜: {new Date().toLocaleDateString("ko-KR")}
             </BuildDate>
