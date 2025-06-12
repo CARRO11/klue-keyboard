@@ -154,56 +154,64 @@ const KeyboardRecommendation: React.FC = () => {
       const platesData = await platesRes.json();
       const stabilizersData = await stabilizersRes.json();
 
+      console.log("스위치 데이터:", switchesData);
+      console.log("키캡 데이터:", keycapsData);
+      console.log("PCB 데이터:", pcbsData);
+
+      // API 응답 구조에 맞게 데이터 추출
+      const switches = switchesData.switches || switchesData.content || [];
+      const keycaps = keycapsData.keycaps || keycapsData.content || [];
+      const pcbs = Array.isArray(pcbsData) ? pcbsData : pcbsData.pcbs || [];
+      const plates = Array.isArray(platesData)
+        ? platesData
+        : platesData.plates || [];
+      const stabilizers =
+        stabilizersData.stabilizers || stabilizersData.content || [];
+
       // 실제 데이터베이스 부품들로 추천 구성
       const realRecommendations = {
-        switches: (switchesData.content || switchesData)
-          .slice(0, 3)
-          .map((s: any) => ({
-            name: s.name,
-            type: s.type || "스위치",
-            material: s.stemMaterial || s.material,
-            price_tier: 2,
-            link: s.link || "#",
-            sound_score: s.soundScore || 7,
-            smoothness_score: s.smoothnessScore || 8,
-            speed_score: s.speedScore || 7,
-          })),
-        keycaps: (keycapsData.content || keycapsData)
-          .slice(0, 3)
-          .map((k: any) => ({
-            name: k.name,
-            material: k.material,
-            profile: k.profile,
-            price_tier: Math.floor(k.priceTier || 2),
-            link: k.link || "#",
-          })),
-        pcb: (pcbsData.slice ? pcbsData.slice(0, 3) : []).map((p: any) => ({
-          name: p.name,
-          layout: p.layout,
+        switches: switches.slice(0, 3).map((s: any) => ({
+          name: s.name || "알 수 없는 스위치",
+          type: s.type || "Linear",
+          material: s.stemMaterial || s.material || "POM",
+          price_tier: 2,
+          link: s.link || "#",
+          sound_score: Math.round(s.soundScore || 7),
+          smoothness_score: Math.round(s.smoothnessScore || 8),
+          speed_score: Math.round(s.speedScore || s.linearScore || 7),
+        })),
+        keycaps: keycaps.slice(0, 3).map((k: any) => ({
+          name: k.name || "알 수 없는 키캡",
+          material: k.material || "PBT",
+          profile: k.profile || "Cherry",
+          price_tier: 2,
+          link: k.link || "#",
+        })),
+        pcb: pcbs.slice(0, 3).map((p: any) => ({
+          name: p.name || "알 수 없는 PCB",
+          layout: p.layout || "60%",
           hotswap: p.hotswap,
           wireless: p.wireless,
-          price_tier: Math.floor(p.priceTier || 2),
+          price_tier: 2,
           link: p.link || "#",
         })),
-        plate: (platesData.slice ? platesData.slice(0, 3) : []).map(
-          (p: any) => ({
-            name: p.name,
-            material: p.material,
-            thickness: p.thickness,
-            price_tier: Math.floor(p.priceTier || 2),
-            link: p.link || "#",
-          })
-        ),
-        stabilizers: (stabilizersData.content || stabilizersData)
-          .slice(0, 3)
-          .map((s: any) => ({
-            name: s.name,
-            material: s.material,
-            size: s.size,
-            price_tier: 2,
-            link: s.link || "#",
-          })),
+        plate: plates.slice(0, 3).map((p: any) => ({
+          name: p.name || "알 수 없는 플레이트",
+          material: p.material || "Aluminum",
+          thickness: p.thickness,
+          price_tier: 2,
+          link: p.link || "#",
+        })),
+        stabilizers: stabilizers.slice(0, 3).map((s: any) => ({
+          name: s.name || "알 수 없는 스테빌라이저",
+          material: s.material || "Plastic",
+          size: s.size,
+          price_tier: 2,
+          link: s.link || "#",
+        })),
       };
+
+      console.log("최종 추천 데이터:", realRecommendations);
 
       setRecommendations(realRecommendations);
     } catch (error) {
@@ -213,16 +221,50 @@ const KeyboardRecommendation: React.FC = () => {
       const fallbackRecommendations = {
         switches: [
           {
-            name: aiResponse.switchType || "추천 스위치",
-            type: aiResponse.switchType,
+            name: aiResponse.switchType || "Cherry MX Red (추천)",
+            type: aiResponse.switchType || "Linear",
+            material: "POM",
+            price_tier: 2,
+            link: "#",
+            sound_score: 7,
+            smoothness_score: 8,
+            speed_score: 7,
+          },
+        ],
+        keycaps: [
+          {
+            name: "PBT 키캡 (추천)",
+            material: "PBT",
+            profile: "Cherry",
             price_tier: 2,
             link: "#",
           },
         ],
-        plate: [],
-        stabilizers: [],
-        keycaps: [],
-        pcb: [],
+        pcb: [
+          {
+            name: "60% 핫스왑 PCB (추천)",
+            layout: "60%",
+            hotswap: true,
+            price_tier: 2,
+            link: "#",
+          },
+        ],
+        plate: [
+          {
+            name: "알루미늄 플레이트 (추천)",
+            material: "Aluminum",
+            price_tier: 2,
+            link: "#",
+          },
+        ],
+        stabilizers: [
+          {
+            name: "체리 스테빌라이저 (추천)",
+            material: "Plastic",
+            price_tier: 2,
+            link: "#",
+          },
+        ],
       };
       setRecommendations(fallbackRecommendations);
     }
