@@ -332,25 +332,12 @@ const RequestPage = () => {
     <PageContainer>
       <Container>
         <Header>
-          <Title>🔧 키보드 조립 대행 서비스</Title>
+          <Title>키보드 조립 대행 서비스</Title>
           <Subtitle>
             부품을 가져오시면 전문 공방에서 <br />
             완벽한 키보드로 조립해 드립니다!
           </Subtitle>
         </Header>
-
-        <InfoBox>
-          <InfoTitle>📋 서비스 안내</InfoTitle>
-          <InfoText>
-            • 고객님이 구매하신 키보드 부품들을 전문가가 조립해 드립니다
-            <br />
-            • 부품 상태와 요청사항을 스크린샷으로 첨부해 주세요
-            <br />
-            • 조립 방식과 특별 요청사항을 상세히 적어주시면 더 좋은 결과를 얻을
-            수 있습니다
-            <br />• 공방별로 전문분야와 소요시간이 다르니 신중히 선택해 주세요
-          </InfoText>
-        </InfoBox>
 
         <FormContainer>
           <form onSubmit={handleSubmit}>
