@@ -92,6 +92,9 @@ const Navbar = () => {
         <MenuItem to="/ai" $isActive={location.pathname === "/ai"}>
           AI
         </MenuItem>
+        <MenuItem to="/request" $isActive={location.pathname === "/request"}>
+          Request
+        </MenuItem>
       </MenuContainer>
       <AuthContainer>
         <SignInButton>마이</SignInButton>

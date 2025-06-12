@@ -7,6 +7,7 @@ import KeyboardRecommendation from "./pages/KeyboardRecommendation";
 import PartsManagement from "./pages/PartsManagement";
 import SitePage from "./pages/SitePage";
 import AdminProductPage from "./pages/AdminProductPage";
+import RequestPage from "./pages/RequestPage";
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -406,6 +407,7 @@ const App: React.FC = () => {
           <Route path="/ai" element={<KeyboardRecommendation />} />
           <Route path="/site" element={<SitePage />} />
           <Route path="/new-product" element={<AdminProductPage />} />
+          <Route path="/request" element={<RequestPage />} />
         </Routes>
       </AppContainer>
     </BrowserRouter>
